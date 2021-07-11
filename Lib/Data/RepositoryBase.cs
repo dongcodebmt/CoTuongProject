@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Lib.Data
 {
-    public abstract class RepositoryBase<T> where T: class
+    public abstract class RepositoryBase<T> where T : class
     {
         protected ApplicationDbContext dataContext;
         protected readonly IDbSet<T> dbset;

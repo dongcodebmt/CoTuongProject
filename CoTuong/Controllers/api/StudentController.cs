@@ -1,9 +1,6 @@
-﻿using Lib;
-using Lib.Entities;
+﻿using Lib.Entities;
 using Lib.Services;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Web.Mvc;
 
 namespace DemoAPI.Controllers.api

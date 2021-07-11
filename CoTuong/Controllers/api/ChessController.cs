@@ -3,16 +3,14 @@ using Lib.Entities;
 using Lib.Services;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 
 namespace DemoAPI.Controllers.api
 {
-    public class ChessController: Controller
+    public class ChessController : Controller
     {
         ChessService chessService = new ChessService();
-        
+
         [Route("api/chess/insertroom")]
         [HttpPost]
         public ActionResult insertroom(RoomModel rmodel)
@@ -25,7 +23,7 @@ namespace DemoAPI.Controllers.api
             Json(new
             {
                 message = "success",
-               // data = stList //_dbContext.Student.OrderBy(s=>s.Id).Skip(2).Take(3).ToList() //Where(s=>s.Id == Guid.Parse(id)).FirstOrDefault()
+                // data = stList //_dbContext.Student.OrderBy(s=>s.Id).Skip(2).Take(3).ToList() //Where(s=>s.Id == Guid.Parse(id)).FirstOrDefault()
             }, JsonRequestBehavior.AllowGet);
         }
         [Route("api/chess/getrooms")]

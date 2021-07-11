@@ -1,10 +1,7 @@
 ﻿using Lib.Data;
 using Lib.Entities;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Lib.Repositories
 {
@@ -17,7 +14,7 @@ namespace Lib.Repositories
         public RoomRespository(DbContextFactory factory)
             : base(factory)
         {
-            
+
         }
         public List<Room> GetAllRooms()
         {

@@ -2,12 +2,11 @@
 using Lib;
 using Lib.Entities;
 using System;
-using System.Linq;
 using System.Web.Mvc;
 
 namespace DemoAPI.Controllers.api
 {
-    public class ClassRoomController: Controller
+    public class ClassRoomController : Controller
     {
         ApplicationDbContext _dbContext = new ApplicationDbContext();
         [HttpPost]
@@ -29,7 +28,8 @@ namespace DemoAPI.Controllers.api
                     data = cl
                 });
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 return
                 Json(new
                 {

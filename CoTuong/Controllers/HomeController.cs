@@ -1,10 +1,6 @@
-﻿using Lib;
-using Lib.Entities;
+﻿using Lib.Entities;
 using Lib.Services;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 
 namespace DemoAPI.Controllers
@@ -15,8 +11,8 @@ namespace DemoAPI.Controllers
         ChessService chessService = new ChessService();
         public ActionResult Index()
         {
-            
-           
+
+
             ViewBag.Title = "Home Page";
             /*ApplicationDbContext _dbContext;
             _dbContext = new ApplicationDbContext();
@@ -32,7 +28,8 @@ namespace DemoAPI.Controllers
 
             return View();
         }
-        public void insertRoom() {
+        public void insertRoom()
+        {
             Room r = new Room();
             r.Id = Guid.NewGuid();
             r.Name = "test";

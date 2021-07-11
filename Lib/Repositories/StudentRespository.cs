@@ -1,10 +1,7 @@
 ﻿using Lib.Data;
 using Lib.Entities;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Lib.Repositories
 {
@@ -12,12 +9,12 @@ namespace Lib.Repositories
     {
         List<Student> GetStudents();
     }
-    public class StudentRespository: RepositoryBase<Student>, IStudentRepository
+    public class StudentRespository : RepositoryBase<Student>, IStudentRepository
     {
         public StudentRespository(DbContextFactory factory)
             : base(factory)
         {
-            
+
         }
         public List<Student> GetStudents()
         {
