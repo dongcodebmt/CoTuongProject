@@ -162,6 +162,7 @@
                 return 0;
             },
             kiemTraDuongThang(stopI, startI, stopJ, startJ) {
+                console.log("Test" + stopI + "_" + startI + "_" + stopJ + "_" + startJ);
                 if (stopI == startI && stopJ > startJ) {
                     for (let i = startJ + 1; i < stopJ; i++) {
                         if (app.chessMatrix[stopI][i].id)
@@ -187,7 +188,26 @@
                     }
                 }
                 return 0;
-        },
+            },
+            kiemTraDuongDiQuanMa(stopI, startI, stopJ, startJ) {
+                if ((stopI - startI) == 2) {
+                    if (app.chessMatrix[startI + 1][startJ].id)
+                        return 1;
+                }
+                if ((stopI - startI) == -2) {
+                    if (app.chessMatrix[startI - 1][startJ].id)
+                        return 1;
+                }
+                if ((stopJ - startJ) == 2) {
+                    if (app.chessMatrix[startI][startJ + 1].id)
+                        return 1;
+                }
+                if ((stopJ - startJ) == -2) {
+                    if (app.chessMatrix[startI][startJ - 1].id)
+                        return 1;
+                }
+                return 0;
+            },
         setChessNodeToMatrix(chessNode) {
             this.indexStopI = -1;
             this.indexStopJ = -1;
@@ -369,7 +389,32 @@
                             }
                         }
                         //Mã
+                        if (this.id.indexOf("mado1") >= 0 || this.id.indexOf("mado2") >= 0) {
+                            if (((Math.abs(app.indexStopI - app.indexStartI) == 1 && Math.abs(app.indexStopJ - app.indexStartJ) == 2) || (Math.abs(app.indexStopI - app.indexStartI) == 2 && Math.abs(app.indexStopJ - app.indexStartJ) == 1)) &&
+                                app.kiemTraDuongDiQuanMa(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ) == 0 &&
+                                (app.indexStopJ >= 0 && app.indexStopJ <= 8 && app.indexStopI >= 0 && app.indexStopI <= 9) &&
+                                app.hasChessNode(app.chessMatrix[app.indexStopI][app.indexStopJ].left, app.chessMatrix[app.indexStopI][app.indexStopJ].top, app.chessMatrix[app.indexStopI][app.indexStopJ].id) != 1) {
+                                var node = $("#" + this.id);
+                                node.css({ 'top': app.chessMatrix[app.indexStopI][app.indexStopJ].top + 'px' });
+                                node.css({ 'left': app.chessMatrix[app.indexStopI][app.indexStopJ].left + 'px' });
+                                app.$set(app.chessMatrix[app.indexStartI][app.indexStartJ], "id", "");
 
+                                flag = true;
+                            }
+                        }
+                        if (this.id.indexOf("maden1") >= 0 || this.id.indexOf("maden2") >= 0) {
+                            if (((Math.abs(app.indexStopI - app.indexStartI) == 1 && Math.abs(app.indexStopJ - app.indexStartJ) == 2) || (Math.abs(app.indexStopI - app.indexStartI) == 2 && Math.abs(app.indexStopJ - app.indexStartJ) == 1)) &&
+                                app.kiemTraDuongDiQuanMa(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ) == 0 &&
+                                (app.indexStopJ >= 0 && app.indexStopJ <= 8 && app.indexStopI >= 0 && app.indexStopI <= 9) &&
+                                app.hasChessNode(app.chessMatrix[app.indexStopI][app.indexStopJ].left, app.chessMatrix[app.indexStopI][app.indexStopJ].top, app.chessMatrix[app.indexStopI][app.indexStopJ].id) != 1) {
+                                var node = $("#" + this.id);
+                                node.css({ 'top': app.chessMatrix[app.indexStopI][app.indexStopJ].top + 'px' });
+                                node.css({ 'left': app.chessMatrix[app.indexStopI][app.indexStopJ].left + 'px' });
+                                app.$set(app.chessMatrix[app.indexStartI][app.indexStartJ], "id", "");
+
+                                flag = true;
+                            }
+                        }
                         //Pháo
                         if (this.id.indexOf("phaodo1") >= 0 || this.id.indexOf("phaodo2") >= 0 || this.id.indexOf("phaoden1") >= 0 || this.id.indexOf("phaoden2") >= 0) {
                             if ((app.indexStartI == app.indexStopI || app.indexStartJ == app.indexStopJ) &&
