@@ -280,7 +280,12 @@
             },
             anQuanCo(id) {
                 var movelist = [{ id: id, top: 999, left: 999, visible: false }];
-                axios.post('/api/chess/movenode', movelist).then(response => {
+                let searchParams = new URLSearchParams(window.location.search);
+                //var res = axios.post('/api/chess/movenode', movelist).then(response => {
+                axios.post('/api/chess/movenode', {
+                    group: searchParams.get('room'),
+                    movelist: movelist
+                }).then(response => {
                 }).catch(error => {
                     console.log(error)
                 }).finally();
