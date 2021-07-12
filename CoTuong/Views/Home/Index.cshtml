@@ -8,6 +8,7 @@
         height: 850px;
         background-image: url('/Images/bancotuong.jpg');
         position: absolute;
+        left: 0;
     }
 
     .chessnode {
@@ -20,37 +21,107 @@
         width: 50px;
         height: 50px;
     }
-</style>
 
+    .chatboard {
+        width: 850px;
+        height: 850px;
+        position: absolute;
+        right: 0;
+        margin-top: 50px;
+        margin-right: 50px
+    }
+</style>
 
 
 <div id="app">
     <div class="chessboard">
-
         <div v-for="item in chessNode" v-if="item !== null" :id="item.id" class="chessnode" v-bind:style="{ display: item.visible, top: item.top + 'px', left: item.left + 'px'}">
             <img :src="'/' + item.src" class="chessimgnode" />
         </div>
-
     </div>
-    {{ message }}
-    total record: {{total}}
-    <input v-on:click="getTotal" type="button" value="get total" />
-    List Student
-    <ul id="demo">
-        <li v-for="item in students" v-if="item !== null">
-            {{item.Id}} {{item.Name}}
-        </li>
-    </ul>
+    <div class="chatboard">
+        @*{{ message }}
+        total record: {{total}}
+        <input v-on:click="getTotal" type="button" value="get total" />
+        List Student
+        <ul id="demo">
+            <li v-for="item in students" v-if="item !== null">
+                {{item.Id}} {{item.Name}}
+            </li>
+        </ul>
 
-    class room
-    name: <input v-model="classRoom" type="text" value="" />
-    class room name: {{classRoom}}
+        class room
+        name: <input v-model="classRoom" type="text" value="" />
+        class room name: {{classRoom}}
 
-    <input v-on:click="insertClassRoom" type="button" value="insert Class Room" />
+        <input v-on:click="chatPost" type="button" value="insert Class Room" />
 
-    <div>
-        <ul id="discussion"></ul>
+        <div>
+            <ul id="discussion"></ul>
+        </div>*@
+
+        <h2>Chat</h2>
+        <div class="container" id="divLogin">
+            <input type="text" id="txtName" placeholder="Nhập tên" />
+            <button class="btn btn-success" id="btnLogin">Login</button>
+            <input type="hidden" id="hName" />
+        </div>
+        <div class="container" id="divChat">
+            <h2 id="welcome"></h2>
+            <input type="text" id="txtMessage" />
+            <button class="btn btn-success" id="btnSend">Send</button>
+        </div>
+        <div class="container">
+            <ul id="contentMsg">
+            </ul>
+        </div>
     </div>
 </div>
 
 <script src="/Scripts/cotuong.js"></script>
+<script>
+    // sau khi login thành công sẽ gọi cái này
+    function show() {
+        $('#divLogin').hide();
+        $('#divChat').show();
+    }
+    //gọi luôn khi chạy
+    function hide() {
+        $('#divChat').hide();
+        $('#divLogin').show();
+    }
+    $(function () {
+        hide();
+
+        var chatHub = $.connection.chat;
+        loadClient(chatHub);
+        //khởi chạy connect hub
+        $.connection.hub.start().done(function () {
+            $("#btnLogin").click(function () {
+                var name = $("#txtName").val();
+                chatHub.server.connect(name);
+                $('#welcome').html("Xin chao : " + name);
+                show();
+            });
+
+            $('#btnSend').click(function () {
+                var msg = $('#txtMessage').val();
+                var name = $('#hName').val();
+                chatHub.server.message(name, msg);
+                $('#txtMessage').val('').focus();
+            });
+        });
+
+    });
+
+    // load các ham bên phía client
+    function loadClient(chatHub) {
+
+        chatHub.client.message = function (name, msg) {
+            $('#contentMsg').append("<li><strong>" + name + "</strong>: " + msg + "</li>");
+        }
+        chatHub.client.connect = function (name) {
+            $('#hName').val(name);
+        }
+    }
+</script>

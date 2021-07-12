@@ -28,6 +28,13 @@ namespace DemoAPI.Controllers
 
             return View();
         }
+        public ActionResult Chess()
+        {
+            ViewBag.Title = "Home Page";
+            insertRoom();
+
+            return View();
+        }
         public void insertRoom()
         {
             Room r = new Room();
