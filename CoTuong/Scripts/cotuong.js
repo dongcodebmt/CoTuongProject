@@ -105,29 +105,33 @@
             return 0;
         },
         kiemTraDuongThang(stopI, startI, stopJ, startJ) {
+            var i = 0;
             if (stopI == startI && stopJ > startJ) {
                 for (let i = startJ + 1; i < stopJ; i++) {
                     if (app.chessMatrix[stopI][i].id)
-                        return 1;
+                        i++;
                 }
             }
             if (stopI == startI && stopJ < startJ) {
                 for (let i = stopJ + 1; i < startJ; i++) {
                     if (app.chessMatrix[stopI][i].id)
-                        return 1;
+                        i++;
                 }
             }
             if (stopJ == startJ && stopI > startI) {
                 for (let i = startI + 1; i < stopI; i++) {
                     if (app.chessMatrix[i][stopJ].id)
-                        return 1;
+                        i++;
                 }
             }
             if (stopJ == startJ && stopI < startI) {
                 for (let i = stopI + 1; i < startI; i++) {
                     if (app.chessMatrix[i][stopJ].id)
-                        return 1;
+                        i++;
                 }
+            }
+            if (i > 0) {
+                return i;
             }
             return 0;
         },
@@ -152,15 +156,10 @@
         },
         anQuanCo(id) {
             var movelist = [{ id: id, top: 999, left: 999, visible: false }];
-            var res = axios.post('/api/chess/movenode', movelist).then(response => {
-                //this.chessRoom = response.data.data;
-                //alert(response);
-
-            })
-                .catch(error => {
-                    console.log(error)
-                })
-                .finally();
+            axios.post('/api/chess/movenode', movelist).then(response => {
+            }).catch(error => {
+                console.log(error)
+            }).finally();
         },
         setChessNodeToMatrix(chessNode) {
             this.indexStopI = -1;
@@ -318,7 +317,7 @@
                     //Xe
                     if (this.id.indexOf("xedo1") >= 0 || this.id.indexOf("xedo2") >= 0 || this.id.indexOf("xeden1") >= 0 || this.id.indexOf("xeden2") >= 0) {
                         if ((app.indexStartI == app.indexStopI || app.indexStartJ == app.indexStopJ) &&
-                            app.kiemTraDuongThang(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ) == 0 &&
+                            app.kiemTraDuongThang(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ) != 0 &&
                             (app.indexStopJ >= 0 && app.indexStopJ <= 8 && app.indexStopI >= 0 && app.indexStopI <= 9) &&
                             app.hasChessNode(app.chessMatrix[app.indexStopI][app.indexStopJ].left, app.chessMatrix[app.indexStopI][app.indexStopJ].top, app.chessMatrix[app.indexStartI][app.indexStartJ].id) != 1) {
 
@@ -326,16 +325,7 @@
                         }
                     }
                     //Mã
-                    if (this.id.indexOf("mado1") >= 0 || this.id.indexOf("mado2") >= 0) {
-                        if (((Math.abs(app.indexStopI - app.indexStartI) == 1 && Math.abs(app.indexStopJ - app.indexStartJ) == 2) || (Math.abs(app.indexStopI - app.indexStartI) == 2 && Math.abs(app.indexStopJ - app.indexStartJ) == 1)) &&
-                            app.kiemTraDuongDiQuanMa(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ) == 0 &&
-                            (app.indexStopJ >= 0 && app.indexStopJ <= 8 && app.indexStopI >= 0 && app.indexStopI <= 9) &&
-                            app.hasChessNode(app.chessMatrix[app.indexStopI][app.indexStopJ].left, app.chessMatrix[app.indexStopI][app.indexStopJ].top, app.chessMatrix[app.indexStartI][app.indexStartJ].id) != 1) {
-
-                            flag = app.xuLyNuocDi(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ, this.id);
-                        }
-                    }
-                    if (this.id.indexOf("maden1") >= 0 || this.id.indexOf("maden2") >= 0) {
+                    if (this.id.indexOf("mado1") >= 0 || this.id.indexOf("mado2") >= 0 || this.id.indexOf("maden1") >= 0 || this.id.indexOf("maden2") >= 0) {
                         if (((Math.abs(app.indexStopI - app.indexStartI) == 1 && Math.abs(app.indexStopJ - app.indexStartJ) == 2) || (Math.abs(app.indexStopI - app.indexStartI) == 2 && Math.abs(app.indexStopJ - app.indexStartJ) == 1)) &&
                             app.kiemTraDuongDiQuanMa(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ) == 0 &&
                             (app.indexStopJ >= 0 && app.indexStopJ <= 8 && app.indexStopI >= 0 && app.indexStopI <= 9) &&
@@ -347,7 +337,7 @@
                     //Pháo
                     if (this.id.indexOf("phaodo1") >= 0 || this.id.indexOf("phaodo2") >= 0 || this.id.indexOf("phaoden1") >= 0 || this.id.indexOf("phaoden2") >= 0) {
                         if ((app.indexStartI == app.indexStopI || app.indexStartJ == app.indexStopJ) &&
-                            app.kiemTraDuongThang(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ) == 0 &&
+                            (app.kiemTraDuongThang(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ) == 0 || app.kiemTraDuongThang(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ) == 1) &&
                             (app.indexStopJ >= 0 && app.indexStopJ <= 8 && app.indexStopI >= 0 && app.indexStopI <= 9) &&
                             app.hasChessNode(app.chessMatrix[app.indexStopI][app.indexStopJ].left, app.chessMatrix[app.indexStopI][app.indexStopJ].top, app.chessMatrix[app.indexStartI][app.indexStartJ].id) != 1) {
 
