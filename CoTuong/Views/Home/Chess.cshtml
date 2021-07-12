@@ -62,9 +62,11 @@
 
         <h2>Chat</h2>
         <div class="container" id="divLogin">
+            <input type="text" id="txtGroup" placeholder="Nhập nhóm" />
             <input type="text" id="txtName" placeholder="Nhập tên" />
             <button class="btn btn-success" id="btnLogin">Login</button>
             <input type="hidden" id="hName" />
+            <input type="hidden" id="hGroup" />
         </div>
         <div class="container" id="divChat">
             <h2 id="welcome"></h2>
@@ -95,7 +97,8 @@
         $.connection.hub.start().done(function () {
             $("#btnLogin").click(function () {
                 var name = $("#txtName").val();
-                chatHub.server.connect(name);
+                var group = $("#txtGroup").val();
+                chatHub.server.connect(group, name);
                 $('#welcome').html("Xin chao : " + name);
                 show();
             });
@@ -103,7 +106,8 @@
             $('#btnSend').click(function () {
                 var msg = $('#txtMessage').val();
                 var name = $('#hName').val();
-                chatHub.server.message(name, msg);
+                var group = $('#hGroup').val();
+                chatHub.server.message(group, name, msg);
                 $('#txtMessage').val('').focus();
             });
         });
@@ -111,10 +115,11 @@
     });
 
     function loadClient(chatHub) {
-        chatHub.client.message = function (name, msg) {
+        chatHub.client.message = function (group, name, msg) {
             $('#contentMsg').append("<li><strong>" + name + "</strong>: " + msg + "</li>");
         }
-        chatHub.client.connect = function (name) {
+        chatHub.client.connect = function (group, name) {
+            $('#hGroup').val(group);
             $('#hName').val(name);
         }
     }
@@ -490,8 +495,12 @@
                         console.log(app.indexStopI + "_" + app.indexStartI + "_" + app.indexStopJ + "_" + app.indexStartJ);
 
                         if (flag == true) {
-
-                            var res = axios.post('/api/chess/movenode', movelist).then(response => {
+                            let searchParams = new URLSearchParams(window.location.search);
+                            //var res = axios.post('/api/chess/movenode', movelist).then(response => {
+                            var res = axios.post('/api/chess/movenode', {
+                                group: searchParams.get('room'),
+                                movelist: movelist
+                            }).then(response => {
                                 //this.chessRoom = response.data.data;
                                 //alert(response);
 
@@ -514,10 +523,11 @@
         },
         mounted: function () {
             var chat = $.connection.requestlog;
+            let searchParams = new URLSearchParams(window.location.search);
             $.connection.hub.start().done(function () {
-
+                chat.server.connect(searchParams.get('room'));
             });
-            chat.client.postToClient = function (data) {
+            chat.client.postToClient = function (group, data) {
                 $('#discussion').append('<div class="container"><p>Message' + data + '</p></div>');
 
                 var result = [];
@@ -528,7 +538,7 @@
                     var startLeft = parseInt(node.css('left'), 10);
                     var hide = result[i].visible;
                     if (hide == false) {
-                        node.hide();
+                        node.css({ 'display': 'none' });
                     } else {
                         node.css({ 'top': result[i].top + 'px' });
                         node.css({ 'left': result[i].left + 'px' });

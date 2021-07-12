@@ -406,7 +406,7 @@
                 var startLeft = parseInt(node.css('left'), 10);
                 var hide = result[i].visible;
                 if (hide == false) {
-                    node.hide();
+                    node.css({ 'display': 'none' });
                 } else {
                     node.css({ 'top': result[i].top + 'px' });
                     node.css({ 'left': result[i].left + 'px' });

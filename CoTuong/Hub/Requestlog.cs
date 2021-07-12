@@ -5,13 +5,22 @@ namespace DemoAPI
 {
     public class Requestlog : Hub
     {
-        public static void PostToClient(string data)
+        public void Connect(string group)
+        {
+            Clients.Caller.connect(group);
+            Groups.Add(Context.ConnectionId, group);
+        }
+
+        public static void PostToClient(string group, string data)
         {
             try
             {
                 var chat = GlobalHost.ConnectionManager.GetHubContext("Requestlog");
                 if (chat != null)
-                    chat.Clients.All.postToClient(data);
+                {
+                    chat.Clients.Group(group).postToClient(group, data);
+                    //chat.Clients.All.postToClient(data);
+                }
             }
             catch
             {
@@ -22,13 +31,14 @@ namespace DemoAPI
     [HubName("chat")]
     public class DemoChat : Hub
     {
-        public void Connect(string name)
+        public void Message(string group, string name, string msg)
         {
-            Clients.Caller.connect(name);
+            Clients.Group(group).message(group, name, msg);
         }
-        public void Message(string name, string message)
+        public void Connect(string group, string name)
         {
-            Clients.All.message(name, message);
+            Clients.Caller.connect(group, name);
+            Groups.Add(Context.ConnectionId, group);
         }
     }
 }
