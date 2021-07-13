@@ -2,6 +2,7 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="/Scripts/jquery.signalR-2.4.2.js"></script>
 <script src="/signalr/hubs"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.js"></script>
 <style>
     .chessboard {
         width: 850px;
@@ -40,8 +41,11 @@
         </div>
     </div>
     <div class="chatboard">
-        <button class="btn btn-success" id="btnUndo" v-on:click="undo">Undo</button>
-        <button class="btn btn-success" id="btnRedo" v-on:click="redo">Redo</button>
+        @*<button class="btn btn-success" id="btnUndo" v-on:click="undo">Undo</button>
+        <button class="btn btn-success" id="btnRedo" v-on:click="redo">Redo</button>*@
+        <input type="file" id="file">
+        <button class="btn btn-success" id="btnLoadFile" v-on:click="loadChessBoard">Load File</button>
+        <button class="btn btn-success" id="btnDownloadFile" v-on:click="saveChessBoard">Download File</button>
         <h2>Chat</h2>
         <div class="container" id="divLogin">
             <input type="text" id="txtName" placeholder="Nhập tên" />
@@ -83,7 +87,6 @@
                         this.$set(this.chessMatrix[i], j, this.initPoint(this.getXValue(j), this.getYValue(i), ""));
                     }
                 }
-
             },
             initPrintMatrix() {
                 for (var i = 0; i <= 9; i++) {
@@ -184,6 +187,34 @@
                 var node = $("#" + id);
                 node.css({ 'top': top + 'px' });
                 node.css({ 'left': left + 'px' });
+            },
+            saveChessBoard() {
+                var listChessNode = [];
+                for (var i = 0; i <= 9; i++) {
+                    for (var j = 0; j <= 8; j++) {
+                        if (app.chessMatrix[i][j].id) {
+                            var node = { id: app.chessMatrix[i][j].id, src: $("#" + app.chessMatrix[i][j].id).children('img').attr('src').substring(1), top: app.chessMatrix[i][j].top, left: app.chessMatrix[i][j].left, visible: 'inline' };
+                            listChessNode.push(node);
+                        }
+                    }
+                }
+                var fileToSave = new Blob([JSON.stringify(listChessNode)], {
+                    type: 'application/json'
+                });
+
+                saveAs(fileToSave, "chess.json");
+            },
+            loadChessBoard() {
+                var fr = new FileReader();
+                fr.onload = function (evt) {
+                    app.chessNode = JSON.parse(evt.target.result);
+                    app.initMatrix();
+                    for (var i = 0; i < app.chessNode.length; i++) {
+                        app.setChessNodeToMatrix(app.chessNode[i]);
+                    }
+                    app.initPrintMatrix();
+                };
+                fr.readAsText(document.getElementById('file').files[0]);
             },
             kiemTraDuongCheo(stopI, startI, stopJ, startJ) {
                 if (stopI > startI && stopJ > startJ) {
@@ -304,7 +335,7 @@
                     var movelist = [{ id: this.id, top: 999, left: 999, visible: true }];
                     try {
                         movelist = [{
-                            id: this.id, top: app.chessMatrix[app.indexStopI][app.indexStopJ].top, left: app.chessMatrix[app.indexStopI][app.indexStopJ].left, visible: true, isMen: false
+                            id: this.id, top: app.chessMatrix[app.indexStopI][app.indexStopJ].top, left: app.chessMatrix[app.indexStopI][app.indexStopJ].left, visible: true
                         }];
                     } catch (error) {
                         app.revert(originalleft, originaltop, this.id);
