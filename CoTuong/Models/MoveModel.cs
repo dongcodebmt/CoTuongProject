@@ -6,6 +6,5 @@
         public int top { get; set; }
         public int left { get; set; }
         public bool visible { get; set; }
-        public bool isMem { get; set; }
     }
 }
