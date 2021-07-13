@@ -65,10 +65,10 @@ namespace DemoAPI.Controllers.api
         }
         [Route("api/chess/movenode")]
         [HttpPost]
-        public ActionResult getMoveNode(string group, List<MoveModel> movelist)
+        public ActionResult getMoveNode(string group, string name, List<MoveModel> movelist)
         {
             System.Web.Script.Serialization.JavaScriptSerializer js = new System.Web.Script.Serialization.JavaScriptSerializer();
-            Requestlog.PostToClient(group, js.Serialize(movelist));
+            Requestlog.PostToClient(group, name, js.Serialize(movelist));
             return Json(new
             {
                 message = "success"

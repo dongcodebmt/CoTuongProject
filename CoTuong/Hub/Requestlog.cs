@@ -16,14 +16,14 @@ namespace DemoAPI
             Clients.Group(group).message(group, name, msg);
         }
 
-        public static void PostToClient(string group, string data)
+        public static void PostToClient(string group, string name, string data)
         {
             try
             {
                 var chat = GlobalHost.ConnectionManager.GetHubContext("Requestlog");
                 if (chat != null)
                 {
-                    chat.Clients.Group(group).postToClient(group, data);
+                    chat.Clients.Group(group).postToClient(group, name, data);
                     //chat.Clients.All.postToClient(data);
                 }
             }

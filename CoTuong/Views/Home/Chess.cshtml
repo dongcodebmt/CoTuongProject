@@ -65,8 +65,8 @@
         el: '#app',
         data: {
             roomId: 0,
+            player: true,
             chessNode: [],
-            pos: 0,
             chessMatrix: [[]],
             undoMoves: [],
             redoMoves: [],
@@ -255,7 +255,7 @@
             },
             anQuanCo(id) {
                 var movelist = [{ id: id, top: 999, left: 999, visible: false }];
-                sendMoveList(movelist);
+                app.sendMoveList(movelist);
             },
             xuLyNuocDi(stopI, startI, stopJ, startJ, id) {
                 if (app.hasChessNode(app.chessMatrix[stopI][stopJ].left, app.chessMatrix[stopI][stopJ].top, app.chessMatrix[startI][startJ].id) == -1) {
@@ -271,6 +271,7 @@
             sendMoveList(movelist) {
                 axios.post('/api/chess/movenode', {
                     group: this.roomId,
+                    name: $('#hName').val(),
                     movelist: movelist
                 }).then(response => {
                 }).catch(error => {
@@ -331,16 +332,16 @@
                         app.getIndex(originalleft, originaltop, "start");
                         var flag = false;
                         //Tướng
-                        if (this.id.indexOf("chutuongdo") >= 0) {
+                        if (this.id.indexOf("chutuongdo") >= 0 && app.player == true) {
                             if (((Math.abs(app.indexStopI - app.indexStartI) == 0 && Math.abs(app.indexStopJ - app.indexStartJ) == 1) ||
-                                (Math.abs(app.indexStopI - app.indexStartI) == 1 && Math.abs(app.indexStopJ - app.indexStartJ) == 0))
-                                && (app.indexStopJ >= 3 && app.indexStopJ <= 5 && app.indexStopI >= 0 && app.indexStopI <= 2) &&
+                                (Math.abs(app.indexStopI - app.indexStartI) == 1 && Math.abs(app.indexStopJ - app.indexStartJ) == 0)) &&
+                                (app.indexStopJ >= 3 && app.indexStopJ <= 5 && app.indexStopI >= 0 && app.indexStopI <= 2) &&
                                 app.hasChessNode(app.chessMatrix[app.indexStopI][app.indexStopJ].left, app.chessMatrix[app.indexStopI][app.indexStopJ].top, app.chessMatrix[app.indexStartI][app.indexStartJ].id) != 1) {
 
                                 flag = app.xuLyNuocDi(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ, this.id);
                             }
                         }
-                        if (this.id.indexOf("chutuongden") >= 0) {
+                        if (this.id.indexOf("chutuongden") >= 0 && app.player == false) {
                             if (((Math.abs(app.indexStopI - app.indexStartI) == 0 && Math.abs(app.indexStopJ - app.indexStartJ) == 1) ||
                                 (Math.abs(app.indexStopI - app.indexStartI) == 1 && Math.abs(app.indexStopJ - app.indexStartJ) == 0))
                                 && (app.indexStopJ >= 3 && app.indexStopJ <= 5 && app.indexStopI >= 7 && app.indexStopI <= 9) &&
@@ -350,7 +351,7 @@
                             }
                         }
                         //Sĩ
-                        if (this.id.indexOf("sido1") >= 0 || this.id.indexOf("sido2") >= 0) {
+                        if ((this.id.indexOf("sido1") >= 0 || this.id.indexOf("sido2") >= 0) && app.player == true) {
                             if ((Math.abs(app.indexStartI - app.indexStopI) == 1 && Math.abs(app.indexStartJ - app.indexStopJ) == 1)
                                 && (app.indexStopJ >= 3 && app.indexStopJ <= 5 && app.indexStopI >= 0 && app.indexStopI <= 2) &&
                                 app.hasChessNode(app.chessMatrix[app.indexStopI][app.indexStopJ].left, app.chessMatrix[app.indexStopI][app.indexStopJ].top, app.chessMatrix[app.indexStartI][app.indexStartJ].id) != 1) {
@@ -358,7 +359,7 @@
                                 flag = app.xuLyNuocDi(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ, this.id);
                             }
                         }
-                        if (this.id.indexOf("siden1") >= 0 || this.id.indexOf("siden2") >= 0) {
+                        if ((this.id.indexOf("siden1") >= 0 || this.id.indexOf("siden2") >= 0) && app.player == false) {
                             if ((Math.abs(app.indexStartI - app.indexStopI) == 1 && Math.abs(app.indexStartJ - app.indexStopJ) == 1)
                                 && (app.indexStopJ >= 3 && app.indexStopJ <= 5 && app.indexStopI >= 7 && app.indexStopI <= 9) &&
                                 app.hasChessNode(app.chessMatrix[app.indexStopI][app.indexStopJ].left, app.chessMatrix[app.indexStopI][app.indexStopJ].top, app.chessMatrix[app.indexStartI][app.indexStartJ].id) != 1) {
@@ -367,7 +368,7 @@
                             }
                         }
                         //tượng
-                        if (this.id.indexOf("tuongdo1") >= 0 || this.id.indexOf("tuongdo2") >= 0) {
+                        if ((this.id.indexOf("tuongdo1") >= 0 || this.id.indexOf("tuongdo2") >= 0) && app.player == true) {
                             if ((Math.abs(app.indexStartI - app.indexStopI) == 2 && Math.abs(app.indexStartJ - app.indexStopJ) == 2) &&
                                 app.kiemTraDuongCheo(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ) == 0 &&
                                 (app.indexStopJ >= 0 && app.indexStopJ <= 8 && app.indexStopI >= 0 && app.indexStopI <= 4) &&
@@ -376,7 +377,7 @@
                                 flag = app.xuLyNuocDi(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ, this.id);
                             }
                         }
-                        if (this.id.indexOf("tuongden1") >= 0 || this.id.indexOf("tuongden2") >= 0) {
+                        if ((this.id.indexOf("tuongden1") >= 0 || this.id.indexOf("tuongden2") >= 0) && app.player == false) {
                             if ((Math.abs(app.indexStartI - app.indexStopI) == 2 && Math.abs(app.indexStartJ - app.indexStopJ) == 2) &&
                                 app.kiemTraDuongCheo(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ) == 0 &&
                                 (app.indexStopJ >= 0 && app.indexStopJ <= 8 && app.indexStopI >= 5 && app.indexStopI <= 9) &&
@@ -386,7 +387,16 @@
                             }
                         }
                         //Xe
-                        if (this.id.indexOf("xedo1") >= 0 || this.id.indexOf("xedo2") >= 0 || this.id.indexOf("xeden1") >= 0 || this.id.indexOf("xeden2") >= 0) {
+                        if ((this.id.indexOf("xedo1") >= 0 || this.id.indexOf("xedo2") >= 0) && app.player == true) {
+                            if ((app.indexStartI == app.indexStopI || app.indexStartJ == app.indexStopJ) &&
+                                app.kiemTraDuongThang(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ) != 0 &&
+                                (app.indexStopJ >= 0 && app.indexStopJ <= 8 && app.indexStopI >= 0 && app.indexStopI <= 9) &&
+                                app.hasChessNode(app.chessMatrix[app.indexStopI][app.indexStopJ].left, app.chessMatrix[app.indexStopI][app.indexStopJ].top, app.chessMatrix[app.indexStartI][app.indexStartJ].id) != 1) {
+
+                                flag = app.xuLyNuocDi(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ, this.id);
+                            }
+                        }
+                        if ((this.id.indexOf("xeden1") >= 0 || this.id.indexOf("xeden2") >= 0) && app.player == false) {
                             if ((app.indexStartI == app.indexStopI || app.indexStartJ == app.indexStopJ) &&
                                 app.kiemTraDuongThang(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ) != 0 &&
                                 (app.indexStopJ >= 0 && app.indexStopJ <= 8 && app.indexStopI >= 0 && app.indexStopI <= 9) &&
@@ -396,7 +406,16 @@
                             }
                         }
                         //Mã
-                        if (this.id.indexOf("mado1") >= 0 || this.id.indexOf("mado2") >= 0 || this.id.indexOf("maden1") >= 0 || this.id.indexOf("maden2") >= 0) {
+                        if ((this.id.indexOf("mado1") >= 0 || this.id.indexOf("mado2") >= 0) && app.player == true) {
+                            if (((Math.abs(app.indexStopI - app.indexStartI) == 1 && Math.abs(app.indexStopJ - app.indexStartJ) == 2) || (Math.abs(app.indexStopI - app.indexStartI) == 2 && Math.abs(app.indexStopJ - app.indexStartJ) == 1)) &&
+                                app.kiemTraDuongDiQuanMa(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ) == 0 &&
+                                (app.indexStopJ >= 0 && app.indexStopJ <= 8 && app.indexStopI >= 0 && app.indexStopI <= 9) &&
+                                app.hasChessNode(app.chessMatrix[app.indexStopI][app.indexStopJ].left, app.chessMatrix[app.indexStopI][app.indexStopJ].top, app.chessMatrix[app.indexStartI][app.indexStartJ].id) != 1) {
+
+                                flag = app.xuLyNuocDi(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ, this.id);
+                            }
+                        }
+                        if ((this.id.indexOf("maden1") >= 0 || this.id.indexOf("maden2") >= 0) && app.player == false) {
                             if (((Math.abs(app.indexStopI - app.indexStartI) == 1 && Math.abs(app.indexStopJ - app.indexStartJ) == 2) || (Math.abs(app.indexStopI - app.indexStartI) == 2 && Math.abs(app.indexStopJ - app.indexStartJ) == 1)) &&
                                 app.kiemTraDuongDiQuanMa(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ) == 0 &&
                                 (app.indexStopJ >= 0 && app.indexStopJ <= 8 && app.indexStopI >= 0 && app.indexStopI <= 9) &&
@@ -406,7 +425,20 @@
                             }
                         }
                         //Pháo
-                        if (this.id.indexOf("phaodo1") >= 0 || this.id.indexOf("phaodo2") >= 0 || this.id.indexOf("phaoden1") >= 0 || this.id.indexOf("phaoden2") >= 0) {
+                        if ((this.id.indexOf("phaodo1") >= 0 || this.id.indexOf("phaodo2") >= 0) && app.player == true) {
+                            if ((app.indexStartI == app.indexStopI || app.indexStartJ == app.indexStopJ) &&
+                                (app.indexStopJ >= 0 && app.indexStopJ <= 8 && app.indexStopI >= 0 && app.indexStopI <= 9) &&
+                                app.hasChessNode(app.chessMatrix[app.indexStopI][app.indexStopJ].left, app.chessMatrix[app.indexStopI][app.indexStopJ].top, app.chessMatrix[app.indexStartI][app.indexStartJ].id) != 1) {
+
+                                if (app.kiemTraDuongThang(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ) == 0) {
+                                    flag = app.xuLyNuocDi(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ, this.id);
+                                }
+                                if (app.kiemTraDuongThang(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ) == 1 && app.chessMatrix[app.indexStopI][app.indexStopJ].id) {
+                                    flag = app.xuLyNuocDi(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ, this.id);
+                                }
+                            }
+                        }
+                        if ((this.id.indexOf("phaoden1") >= 0 || this.id.indexOf("phaoden2") >= 0) && app.player == false) {
                             if ((app.indexStartI == app.indexStopI || app.indexStartJ == app.indexStopJ) &&
                                 (app.indexStopJ >= 0 && app.indexStopJ <= 8 && app.indexStopI >= 0 && app.indexStopI <= 9) &&
                                 app.hasChessNode(app.chessMatrix[app.indexStopI][app.indexStopJ].left, app.chessMatrix[app.indexStopI][app.indexStopJ].top, app.chessMatrix[app.indexStartI][app.indexStartJ].id) != 1) {
@@ -420,7 +452,7 @@
                             }
                         }
                         //Tốt
-                        if (this.id.indexOf("totdo1") >= 0 || this.id.indexOf("totdo2") >= 0 || this.id.indexOf("totdo3") >= 0 || this.id.indexOf("totdo4") >= 0 || this.id.indexOf("totdo5") >= 0) {
+                        if ((this.id.indexOf("totdo1") >= 0 || this.id.indexOf("totdo2") >= 0 || this.id.indexOf("totdo3") >= 0 || this.id.indexOf("totdo4") >= 0 || this.id.indexOf("totdo5") >= 0) && app.player == true) {
                             if ((app.indexStartI == app.indexStopI || app.indexStartJ == app.indexStopJ) &&
                                 ((app.indexStartJ == app.indexStopJ && app.indexStopI - app.indexStartI == 1 && app.indexStopI >= 3 && app.indexStopI <= 4) ||
                                     ((app.indexStopI - app.indexStartI == 1 || Math.abs(app.indexStopJ - app.indexStartJ) == 1) && app.indexStopI >= 5 && app.indexStopI <= 9)) &&
@@ -429,10 +461,10 @@
                                 flag = app.xuLyNuocDi(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ, this.id);
                             }
                         }
-                        if (this.id.indexOf("totden1") >= 0 || this.id.indexOf("totden2") >= 0 || this.id.indexOf("totden3") >= 0 || this.id.indexOf("totden4") >= 0 || this.id.indexOf("totden5") >= 0) {
+                        if ((this.id.indexOf("totden1") >= 0 || this.id.indexOf("totden2") >= 0 || this.id.indexOf("totden3") >= 0 || this.id.indexOf("totden4") >= 0 || this.id.indexOf("totden5") >= 0) && app.player == false) {
                             if ((app.indexStartI == app.indexStopI || app.indexStartJ == app.indexStopJ) &&
                                 ((app.indexStartJ == app.indexStopJ && app.indexStopI - app.indexStartI == -1 && app.indexStopI >= 5 && app.indexStopI <= 6) ||
-                                    ((app.indexStopI - app.indexStartI == -1 || Math.abs(app.indexStopJ - app.indexStartJ) == 1) && app.indexStopI >= 0 && app.indexStopI <= 4)) &&
+                                ((app.indexStopI - app.indexStartI == -1 || Math.abs(app.indexStopJ - app.indexStartJ) == 1) && app.indexStopI >= 0 && app.indexStopI <= 4)) &&
                                 app.hasChessNode(app.chessMatrix[app.indexStopI][app.indexStopJ].left, app.chessMatrix[app.indexStopI][app.indexStopJ].top, app.chessMatrix[app.indexStartI][app.indexStartJ].id) != 1) {
 
                                 flag = app.xuLyNuocDi(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ, this.id);
@@ -478,11 +510,20 @@
                     $('#txtMessage').val('').focus();
                 });
             });
-            chatHub.client.postToClient = function (group, data) {
+            chatHub.client.postToClient = function (group, name, data) {
                 //$('#discussion').append('<div class="container"><p>Message' + data + '</p></div>');
+                $('#contentMsg').append("<li><strong>" + name + "</strong>: " + data + "</li>");
                 var result = [];
+                var tempStartI = app.indexStartI;
+                var tempStartJ = app.indexStartJ;
                 result = JSON.parse(data);
+
                 for (var i = 0; i < result.length; i++) {
+                    if (result[i].id.indexOf("do") >= 0) {
+                        app.player = false;
+                    } else {
+                        app.player = true;
+                    }
                     var node = $("#" + result[i].id);
                     var startTop = parseInt(node.css('top'), 10);
                     var startLeft = parseInt(node.css('left'), 10);
@@ -500,12 +541,15 @@
                         app.$set(app.chessMatrix[app.indexStopI][app.indexStopJ], "id", result[i].id);
 
                         app.initPrintMatrix();
-                    }
 
-                    console.log(startTop + "-" + startLeft);
-                    if (result[i].isMem != true) {
-                        var movelist = [{ id: result[i].id, top: result[i].top, left: result[i].left, visible: true, isMem: true }];
-                        app.undoMoves.push(JSON.stringify(movelist));
+                        if (result[i].isMem != true && $('#hName').val() == name) {
+                            var movelist = [{ id: result[i].id, top: app.chessMatrix[tempStartI][tempStartJ].top, left: app.chessMatrix[tempStartI][tempStartJ].left, visible: result[i].visible, isMem: true }];
+                            app.undoMoves.push(JSON.stringify(movelist));
+                        }
+                        if (result[i].isMem != true && $('#hName').val() != name) {
+                            var movelist = [{ id: result[i].id, top: app.chessMatrix[app.indexStartI][app.indexStartJ].top, left: app.chessMatrix[app.indexStartI][app.indexStartJ].left, visible: result[i].visible, isMem: true }];
+                            app.undoMoves.push(JSON.stringify(movelist));
+                        }
                     }
                     //node.css({ 'top': result[i].top + 'px, left: ' + result[i].left + 'px, display:' + result[i].visible });
                     break;
