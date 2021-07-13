@@ -286,9 +286,6 @@
                     $('#hName').val(name);
                 }
             },
-            saveUndoMoves(data) {
-                this.undoMoves.push(data);
-            },
             undo() {
                 if (this.undoMoves.length > 0) {
                     var move = this.undoMoves.pop();
@@ -299,6 +296,7 @@
             redo() {
                 if (this.redoMoves.length > 0) {
                     var move = this.redoMoves.pop();
+                    this.undoMoves.push(move);
                     app.sendMoveList(JSON.parse(move));
                 }
             }
@@ -318,9 +316,15 @@
                     app.indexStopI = -1;
                     app.indexStopJ = -1;
                     app.getIndex(ui.position.left, ui.position.top, "stop");
-                    var movelist = [{
-                        id: this.id, top: app.chessMatrix[app.indexStopI][app.indexStopJ].top, left: app.chessMatrix[app.indexStopI][app.indexStopJ].left, visible: true, isMen: false
-                    }];
+                    var movelist = [{ id: this.id, top: 999, left: 999, visible: true }];
+                    try {
+                        movelist = [{
+                            id: this.id, top: app.chessMatrix[app.indexStopI][app.indexStopJ].top, left: app.chessMatrix[app.indexStopI][app.indexStopJ].left, visible: true, isMen: false
+                        }];
+                    } catch (error) {
+                        app.revert(originalleft, originaltop, this.id);
+                    }
+                    
 
                     //Các nước đi của từng quân cờ
                     if (app.indexStopI != -1 && app.indexStopJ != -1) {
@@ -451,8 +455,6 @@
             let searchParams = new URLSearchParams(window.location.search);
             this.roomId = searchParams.get('roomid');
 
-            console.log(this.roomId);
-
             var chatHub = $.connection.requestlog;
             $('#divChat').hide();
             $('#divLogin').show();
@@ -500,9 +502,10 @@
                         app.initPrintMatrix();
                     }
 
+                    console.log(startTop + "-" + startLeft);
                     if (result[i].isMem != true) {
                         var movelist = [{ id: result[i].id, top: result[i].top, left: result[i].left, visible: true, isMem: true }];
-                        app.saveUndoMoves(JSON.stringify(movelist));
+                        app.undoMoves.push(JSON.stringify(movelist));
                     }
                     //node.css({ 'top': result[i].top + 'px, left: ' + result[i].left + 'px, display:' + result[i].visible });
                     break;
