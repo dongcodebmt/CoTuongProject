@@ -498,8 +498,6 @@
                 //$('#discussion').append('<div class="container"><p>Message' + data + '</p></div>');
                 $('#contentMsg').append("<li><strong>" + name + "</strong>: " + data + "</li>");
                 var result = [];
-                var tempStartI = app.indexStartI;
-                var tempStartJ = app.indexStartJ;
                 result = JSON.parse(data);
 
                 for (var i = 0; i < result.length; i++) {
