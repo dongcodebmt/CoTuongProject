@@ -4,7 +4,7 @@ Cảm ơn thầy Nguyễn Trí Toàn đã giúp bọn em thực hiện phần m�
 TODO:
 - [x] tạo phòng chơi, tham gia vào phòng đã được tạo
 - [x] load bàn cờ
-- [ ] lưu bàn cờ
+- [x] lưu bàn cờ
 - [x] các nước đi cho từng quân cờ
 - [ ] undo, redo
 - [x] vừa đánh cờ, vừa chat
