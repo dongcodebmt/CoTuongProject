@@ -11,27 +11,11 @@ namespace DemoAPI.Controllers
         ChessService chessService = new ChessService();
         public ActionResult Index()
         {
-
-
-            ViewBag.Title = "Home Page";
-            /*ApplicationDbContext _dbContext;
-            _dbContext = new ApplicationDbContext();
-            Lib.Entities.Student st = new Lib.Entities.Student();
-            st.Id = Guid.NewGuid();
-            st.Name = "test";
-            st.IdentifyCode = "test 2";
-            _dbContext.Student.Add(st);
-            _dbContext.SaveChanges();
-            */
-            insertRoom();
-
-
             return View();
         }
         public ActionResult Chess()
         {
             ViewBag.Title = "Home Page";
-            insertRoom();
 
             return View();
         }

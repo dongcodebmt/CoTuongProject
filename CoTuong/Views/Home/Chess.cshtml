@@ -62,7 +62,6 @@
 
         <h2>Chat</h2>
         <div class="container" id="divLogin">
-            <input type="text" id="txtGroup" placeholder="Nhập nhóm" />
             <input type="text" id="txtName" placeholder="Nhập tên" />
             <button class="btn btn-success" id="btnLogin">Login</button>
             <input type="hidden" id="hName" />
@@ -97,7 +96,8 @@
         $.connection.hub.start().done(function () {
             $("#btnLogin").click(function () {
                 var name = $("#txtName").val();
-                var group = $("#txtGroup").val();
+                let searchParams = new URLSearchParams(window.location.search);
+                var group = searchParams.get('roomid')
                 chatHub.server.connect(group, name);
                 $('#welcome').html("Xin chao : " + name);
                 show();
@@ -128,9 +128,6 @@
     var app = new Vue({
         el: '#app',
         data: {
-            message: 'Hello Vue! 112',
-            total: 0,
-            students: [],
             classRoom: '',
             chessNode: [],
             chessMatrix: [[]],
@@ -143,19 +140,6 @@
             squares: 74
         },
         methods: {
-            getTotal() {
-                axios
-                    .get('/api/Student/getbyId?Id=1')
-                    .then(response => {
-                        this.total = response.data.total;
-                        this.students = response.data.data;
-                        console.log(this.students);
-                    })
-                    .catch(error => {
-                        console.log(error)
-                    })
-                    .finally()
-            },
             initMatrix() {
                 for (var i = 0; i <= 9; i++) {
                     for (var j = 0; j <= 8; j++) {
@@ -281,9 +265,8 @@
             anQuanCo(id) {
                 var movelist = [{ id: id, top: 999, left: 999, visible: false }];
                 let searchParams = new URLSearchParams(window.location.search);
-                //var res = axios.post('/api/chess/movenode', movelist).then(response => {
                 axios.post('/api/chess/movenode', {
-                    group: searchParams.get('room'),
+                    group: searchParams.get('roomid'),
                     movelist: movelist
                 }).then(response => {
                 }).catch(error => {
@@ -503,7 +486,7 @@
                             let searchParams = new URLSearchParams(window.location.search);
                             //var res = axios.post('/api/chess/movenode', movelist).then(response => {
                             var res = axios.post('/api/chess/movenode', {
-                                group: searchParams.get('room'),
+                                group: searchParams.get('roomid'),
                                 movelist: movelist
                             }).then(response => {
                                 //this.chessRoom = response.data.data;
@@ -530,10 +513,10 @@
             var chat = $.connection.requestlog;
             let searchParams = new URLSearchParams(window.location.search);
             $.connection.hub.start().done(function () {
-                chat.server.connect(searchParams.get('room'));
+                chat.server.connect(searchParams.get('roomid'));
             });
             chat.client.postToClient = function (group, data) {
-                $('#discussion').append('<div class="container"><p>Message' + data + '</p></div>');
+                //$('#discussion').append('<div class="container"><p>Message' + data + '</p></div>');
 
                 var result = [];
                 result = JSON.parse(data);
