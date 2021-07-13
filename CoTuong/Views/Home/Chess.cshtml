@@ -68,8 +68,6 @@
             player: true,
             chessNode: [],
             chessMatrix: [[]],
-            undoMoves: [],
-            redoMoves: [],
             indexStartI: -1,
             indexStartJ: -1,
             indexStopI: -1,
@@ -285,20 +283,6 @@
                 chatHub.client.connect = function (group, name) {
                     $('#hGroup').val(group);
                     $('#hName').val(name);
-                }
-            },
-            undo() {
-                if (this.undoMoves.length > 0) {
-                    var move = this.undoMoves.pop();
-                    this.redoMoves.push(move);
-                    app.sendMoveList(JSON.parse(move));
-                }
-            },
-            redo() {
-                if (this.redoMoves.length > 0) {
-                    var move = this.redoMoves.pop();
-                    this.undoMoves.push(move);
-                    app.sendMoveList(JSON.parse(move));
                 }
             }
         },
@@ -541,15 +525,6 @@
                         app.$set(app.chessMatrix[app.indexStopI][app.indexStopJ], "id", result[i].id);
 
                         app.initPrintMatrix();
-
-                        if (result[i].isMem != true && $('#hName').val() == name) {
-                            var movelist = [{ id: result[i].id, top: app.chessMatrix[tempStartI][tempStartJ].top, left: app.chessMatrix[tempStartI][tempStartJ].left, visible: result[i].visible, isMem: true }];
-                            app.undoMoves.push(JSON.stringify(movelist));
-                        }
-                        if (result[i].isMem != true && $('#hName').val() != name) {
-                            var movelist = [{ id: result[i].id, top: app.chessMatrix[app.indexStartI][app.indexStartJ].top, left: app.chessMatrix[app.indexStartI][app.indexStartJ].left, visible: result[i].visible, isMem: true }];
-                            app.undoMoves.push(JSON.stringify(movelist));
-                        }
                     }
                     //node.css({ 'top': result[i].top + 'px, left: ' + result[i].left + 'px, display:' + result[i].visible });
                     break;
