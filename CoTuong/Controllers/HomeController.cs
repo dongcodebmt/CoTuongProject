@@ -7,7 +7,6 @@ namespace DemoAPI.Controllers
 {
     public class HomeController : Controller
     {
-        StudentService stService = new StudentService();
         ChessService chessService = new ChessService();
         public ActionResult Index()
         {
