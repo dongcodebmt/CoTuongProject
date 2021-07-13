@@ -128,7 +128,6 @@
     var app = new Vue({
         el: '#app',
         data: {
-            classRoom: '',
             chessNode: [],
             chessMatrix: [[]],
             indexStartI: -1,
@@ -306,11 +305,6 @@
                         }
                     }
                 }
-            },
-            insertClassRoom() {
-                var payload = { Name: this.classRoom };
-                var res = axios.post('/api/ClassRoom/insertClassRoom', payload);
-                console.log(res.data);
             },
             getchessNode() {
                 var res = axios.post('/api/chess/getchessnode').then(response => {

@@ -18,7 +18,7 @@ namespace Lib.Repositories
         }
         public List<Room> GetAllRooms()
         {
-            var query = dataContext.Room.AsQueryable();
+            var query = dataContext.Room.AsQueryable().OrderByDescending(c => c.CreateTime);
             return query.ToList();
         }
     }

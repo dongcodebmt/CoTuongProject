@@ -18,6 +18,7 @@ namespace DemoAPI.Controllers.api
             Room r = new Room();
             r.Id = Guid.NewGuid();
             r.Name = rmodel.RoomName;
+            r.CreateTime = DateTime.Now;
             chessService.insertRoom(r);
             return
             Json(new

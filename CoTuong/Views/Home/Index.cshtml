@@ -2,6 +2,11 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 <div id="app">
+    <h2>Tạo phòng</h2>
+    <div class="container" id="divLogin">
+        <input type="text" id="txtName" placeholder="Nhập tên phòng" />
+        <button class="btn btn-success" id="btnSubmit" v-on:click="createRoom">Tạo</button>
+    </div>
     <ol>
         <li v-for="r in rooms">
             <a v-bind:href="'/Home/Chess?roomid='+ r.Id">{{ r.Name }}</a>
@@ -19,13 +24,25 @@
             getListRoom() {
                 axios.get('api/chess/getrooms')
                     .then(response => {
-                        console.log(response.data)
                         if (response.data.message == "success") {
                             this.rooms = response.data.data;
                         }
                     }).catch(error => {
                         console.log(error);
                     }).finally();
+            },
+            createRoom() {
+                var name = $("#txtName").val();
+                var payload = { RoomName: name };
+                axios.post('api/chess/insertroom', {
+                    rmodel: payload
+                }).then(response => {
+                    if (response.data.message == "success") {
+                        this.getListRoom();
+                    }
+                }).catch(error => {
+                    console.log(error);
+                }).finally();
             }
         },
         mounted: function () {
