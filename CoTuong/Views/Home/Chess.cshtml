@@ -78,56 +78,11 @@
         </div>
     </div>
 </div>
-
-<script>
-    function show() {
-        $('#divLogin').hide();
-        $('#divChat').show();
-    }
-    function hide() {
-        $('#divChat').hide();
-        $('#divLogin').show();
-    }
-    $(function () {
-        hide();
-
-        var chatHub = $.connection.chat;
-        loadClient(chatHub);
-        $.connection.hub.start().done(function () {
-            $("#btnLogin").click(function () {
-                var name = $("#txtName").val();
-                let searchParams = new URLSearchParams(window.location.search);
-                var group = searchParams.get('roomid')
-                chatHub.server.connect(group, name);
-                $('#welcome').html("Xin chao : " + name);
-                show();
-            });
-
-            $('#btnSend').click(function () {
-                var msg = $('#txtMessage').val();
-                var name = $('#hName').val();
-                var group = $('#hGroup').val();
-                chatHub.server.message(group, name, msg);
-                $('#txtMessage').val('').focus();
-            });
-        });
-
-    });
-
-    function loadClient(chatHub) {
-        chatHub.client.message = function (group, name, msg) {
-            $('#contentMsg').append("<li><strong>" + name + "</strong>: " + msg + "</li>");
-        }
-        chatHub.client.connect = function (group, name) {
-            $('#hGroup').val(group);
-            $('#hName').val(name);
-        }
-    }
-</script>
 <script>
     var app = new Vue({
         el: '#app',
         data: {
+            roomId: 0,
             chessNode: [],
             chessMatrix: [[]],
             indexStartI: -1,
@@ -192,6 +147,60 @@
                         return -1; //quan khac loai
                 }
 
+            },
+            setChessNodeToMatrix(chessNode) {
+                this.indexStopI = -1;
+                this.indexStopJ = -1;
+
+                this.getIndex(chessNode.left, chessNode.top, "stop");
+                if (this.indexStopI == -1 && this.indexStopI == -1) {
+                    return;
+                }
+                this.$set(this.chessMatrix[this.indexStopI][this.indexStopJ], "id", chessNode.id);
+            },
+            getIndex(left, top, typeofMove) {
+                if (typeofMove == "stop") {
+                    this.indexStopI = -1;
+                    this.indexStopJ = -1;
+                }
+                if (typeofMove == "start") {
+                    this.indexStartI = -1;
+                    this.indexStartJ = -1;
+                }
+                for (var i = 0; i <= 9; i++) {
+                    for (var j = 0; j <= 8; j++) {
+                        if (Math.abs(this.chessMatrix[i][j].top - top) < 20 && Math.abs(this.chessMatrix[i][j].left - left) < 20) {
+                            if (typeofMove == "stop") {
+                                this.indexStopI = i;
+                                this.indexStopJ = j;
+                                return;
+                            }
+                            if (typeofMove == "start") {
+                                this.indexStartI = i;
+                                this.indexStartJ = j;
+                                return;
+                            }
+                        }
+                    }
+                }
+            },
+            getchessNode() {
+                axios.post('/api/chess/getchessnode').then(response => {
+                    this.chessNode = response.data.chessnode;
+                    this.chessMatrix = response.data.matrix;
+                    this.initMatrix();
+                    for (var i = 0; i < this.chessNode.length; i++) {
+                        this.setChessNodeToMatrix(this.chessNode[i]);
+                    }
+                    this.initPrintMatrix();
+                }).catch(error => {
+                    console.log(error)
+                }).finally();
+            },
+            revert(left, top, id) {
+                var node = $("#" + id);
+                node.css({ 'top': top + 'px' });
+                node.css({ 'left': left + 'px' });
             },
             kiemTraDuongCheo(stopI, startI, stopJ, startJ) {
                 if (stopI > startI && stopJ > startJ) {
@@ -261,72 +270,7 @@
             },
             anQuanCo(id) {
                 var movelist = [{ id: id, top: 999, left: 999, visible: false }];
-                let searchParams = new URLSearchParams(window.location.search);
-                axios.post('/api/chess/movenode', {
-                    group: searchParams.get('roomid'),
-                    movelist: movelist
-                }).then(response => {
-                }).catch(error => {
-                    console.log(error)
-                }).finally();
-            },
-            setChessNodeToMatrix(chessNode) {
-                this.indexStopI = -1;
-                this.indexStopJ = -1;
-
-                this.getIndex(chessNode.left, chessNode.top, "stop");
-                if (this.indexStopI == -1 && this.indexStopI == -1) {
-                    return;
-                }
-                this.$set(this.chessMatrix[this.indexStopI][this.indexStopJ], "id", chessNode.id);
-            },
-            getIndex(left, top, typeofMove) {
-                if (typeofMove == "stop") {
-                    this.indexStopI = -1;
-                    this.indexStopJ = -1;
-                }
-                if (typeofMove == "start") {
-                    this.indexStartI = -1;
-                    this.indexStartJ = -1;
-                }
-                for (var i = 0; i <= 9; i++) {
-                    for (var j = 0; j <= 8; j++) {
-                        if (Math.abs(this.chessMatrix[i][j].top - top) < 20 && Math.abs(this.chessMatrix[i][j].left - left) < 20) {
-                            if (typeofMove == "stop") {
-                                this.indexStopI = i;
-                                this.indexStopJ = j;
-                                return;
-                            }
-                            if (typeofMove == "start") {
-                                this.indexStartI = i;
-                                this.indexStartJ = j;
-                                return;
-                            }
-                        }
-                    }
-                }
-            },
-            getchessNode() {
-                var res = axios.post('/api/chess/getchessnode').then(response => {
-                    this.chessNode = response.data.chessnode;
-                    this.chessMatrix = response.data.matrix;
-                    this.initMatrix();
-                    for (var i = 0; i < this.chessNode.length; i++) {
-                        this.setChessNodeToMatrix(this.chessNode[i]);
-                    }
-                    this.initPrintMatrix();
-                    //this.chessRoom = response.data.data;
-
-                })
-                    .catch(error => {
-                        console.log(error)
-                    })
-                    .finally();
-            },
-            revert(left, top, id) {
-                var node = $("#" + id);
-                node.css({ 'top': top + 'px' });
-                node.css({ 'left': left + 'px' });
+                sendMoveList(movelist);
             },
             xuLyNuocDi(stopI, startI, stopJ, startJ, id) {
                 if (app.hasChessNode(app.chessMatrix[stopI][stopJ].left, app.chessMatrix[stopI][stopJ].top, app.chessMatrix[startI][startJ].id) == -1) {
@@ -338,6 +282,24 @@
                 app.$set(app.chessMatrix[startI][startJ], "id", "");
 
                 return true;
+            },
+            sendMoveList(movelist) {
+                axios.post('/api/chess/movenode', {
+                    group: this.roomId,
+                    movelist: movelist
+                }).then(response => {
+                }).catch(error => {
+                    console.log(error)
+                }).finally();
+            },
+            loadClient(chatHub) {
+                chatHub.client.message = function (group, name, msg) {
+                    $('#contentMsg').append("<li><strong>" + name + "</strong>: " + msg + "</li>");
+                }
+                chatHub.client.connect = function (group, name) {
+                    $('#hGroup').val(group);
+                    $('#hName').val(name);
+                }
             }
         },
         updated: function () {
@@ -352,15 +314,13 @@
 
                 },
                 stop: function (event, ui) {
-                    //console.log('x=' + ui.position.top + '  y=' + ui.position.left);
-
                     app.indexStopI = -1;
                     app.indexStopJ = -1;
                     app.getIndex(ui.position.left, ui.position.top, "stop");
                     var movelist = [{ id: this.id, top: app.chessMatrix[app.indexStopI][app.indexStopJ].top, left: app.chessMatrix[app.indexStopI][app.indexStopJ].left, visible: true }];
 
+                    //Các nước đi của từng quân cờ
                     if (app.indexStopI != -1 && app.indexStopJ != -1) {
-
                         app.getIndex(originalleft, originaltop, "start");
                         var flag = false;
                         //Tướng
@@ -472,28 +432,11 @@
                             }
                         }
 
-                        console.log(app.indexStopI + "_" + app.indexStartI + "_" + app.indexStopJ + "_" + app.indexStartJ);
-
-                        if (flag == true) {
-                            let searchParams = new URLSearchParams(window.location.search);
-                            //var res = axios.post('/api/chess/movenode', movelist).then(response => {
-                            var res = axios.post('/api/chess/movenode', {
-                                group: searchParams.get('roomid'),
-                                movelist: movelist
-                            }).then(response => {
-                                //this.chessRoom = response.data.data;
-                                //alert(response);
-
-                            })
-                                .catch(error => {
-                                    console.log(error)
-                                })
-                                .finally();
-                        }
+                        if (flag == true)
+                            app.sendMoveList(movelist);
                         else
                             app.revert(originalleft, originaltop, this.id);
-                    }
-                    else {
+                    } else {
                         app.revert(originalleft, originaltop, this.id);
                     }
 
@@ -502,12 +445,35 @@
             });
         },
         mounted: function () {
-            var chat = $.connection.requestlog;
             let searchParams = new URLSearchParams(window.location.search);
+            this.roomId = searchParams.get('roomid');
+
+            console.log(this.roomId);
+
+            var chatHub = $.connection.requestlog;
+            $('#divChat').hide();
+            $('#divLogin').show();
+            this.loadClient(chatHub);
+
             $.connection.hub.start().done(function () {
-                chat.server.connect(searchParams.get('roomid'));
+                //chatHub.server.connect(this.roomId);
+                $("#btnLogin").click(function () {
+                    var name = $('#txtName').val();
+                    chatHub.server.connect(app.roomId, name);
+                    $('#welcome').html("Xin chào: " + name);
+                    $('#divLogin').hide();
+                    $('#divChat').show();
+                });
+
+                $('#btnSend').click(function () {
+                    var msg = $('#txtMessage').val();
+                    var name = $('#hName').val();
+                    var group = $('#hGroup').val();
+                    chatHub.server.message(group, name, msg);
+                    $('#txtMessage').val('').focus();
+                });
             });
-            chat.client.postToClient = function (group, data) {
+            chatHub.client.postToClient = function (group, data) {
                 //$('#discussion').append('<div class="container"><p>Message' + data + '</p></div>');
 
                 var result = [];
