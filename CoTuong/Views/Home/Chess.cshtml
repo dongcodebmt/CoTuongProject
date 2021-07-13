@@ -40,26 +40,8 @@
         </div>
     </div>
     <div class="chatboard">
-        @*{{ message }}
-            total record: {{total}}
-            <input v-on:click="getTotal" type="button" value="get total" />
-            List Student
-            <ul id="demo">
-                <li v-for="item in students" v-if="item !== null">
-                    {{item.Id}} {{item.Name}}
-                </li>
-            </ul>
-
-            class room
-            name: <input v-model="classRoom" type="text" value="" />
-            class room name: {{classRoom}}
-
-            <input v-on:click="chatPost" type="button" value="insert Class Room" />
-
-            <div>
-                <ul id="discussion"></ul>
-            </div>*@
-
+        <button class="btn btn-success" id="btnUndo" v-on:click="undo">Undo</button>
+        <button class="btn btn-success" id="btnRedo" v-on:click="redo">Redo</button>
         <h2>Chat</h2>
         <div class="container" id="divLogin">
             <input type="text" id="txtName" placeholder="Nhập tên" />
@@ -84,7 +66,10 @@
         data: {
             roomId: 0,
             chessNode: [],
+            pos: 0,
             chessMatrix: [[]],
+            undoMoves: [],
+            redoMoves: [],
             indexStartI: -1,
             indexStartJ: -1,
             indexStopI: -1,
@@ -300,6 +285,22 @@
                     $('#hGroup').val(group);
                     $('#hName').val(name);
                 }
+            },
+            saveUndoMoves(data) {
+                this.undoMoves.push(data);
+            },
+            undo() {
+                if (this.undoMoves.length > 0) {
+                    var move = this.undoMoves.pop();
+                    this.redoMoves.push(move);
+                    app.sendMoveList(JSON.parse(move));
+                }
+            },
+            redo() {
+                if (this.redoMoves.length > 0) {
+                    var move = this.redoMoves.pop();
+                    app.sendMoveList(JSON.parse(move));
+                }
             }
         },
         updated: function () {
@@ -317,7 +318,9 @@
                     app.indexStopI = -1;
                     app.indexStopJ = -1;
                     app.getIndex(ui.position.left, ui.position.top, "stop");
-                    var movelist = [{ id: this.id, top: app.chessMatrix[app.indexStopI][app.indexStopJ].top, left: app.chessMatrix[app.indexStopI][app.indexStopJ].left, visible: true }];
+                    var movelist = [{
+                        id: this.id, top: app.chessMatrix[app.indexStopI][app.indexStopJ].top, left: app.chessMatrix[app.indexStopI][app.indexStopJ].left, visible: true, isMen: false
+                    }];
 
                     //Các nước đi của từng quân cờ
                     if (app.indexStopI != -1 && app.indexStopJ != -1) {
@@ -432,8 +435,8 @@
                             }
                         }
 
-                        if (flag == true)
-                            app.sendMoveList(movelist);
+                        if (flag == true) 
+                            app.sendMoveList(movelist); 
                         else
                             app.revert(originalleft, originaltop, this.id);
                     } else {
@@ -475,7 +478,6 @@
             });
             chatHub.client.postToClient = function (group, data) {
                 //$('#discussion').append('<div class="container"><p>Message' + data + '</p></div>');
-
                 var result = [];
                 result = JSON.parse(data);
                 for (var i = 0; i < result.length; i++) {
@@ -496,6 +498,11 @@
                         app.$set(app.chessMatrix[app.indexStopI][app.indexStopJ], "id", result[i].id);
 
                         app.initPrintMatrix();
+                    }
+
+                    if (result[i].isMem != true) {
+                        var movelist = [{ id: result[i].id, top: result[i].top, left: result[i].left, visible: true, isMem: true }];
+                        app.saveUndoMoves(JSON.stringify(movelist));
                     }
                     //node.css({ 'top': result[i].top + 'px, left: ' + result[i].left + 'px, display:' + result[i].visible });
                     break;
