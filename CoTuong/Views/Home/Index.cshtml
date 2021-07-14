@@ -2,16 +2,33 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 <div id="app">
-    <h2>Tạo phòng</h2>
-    <div class="container" id="divLogin">
-        <input type="text" id="txtName" placeholder="Nhập tên phòng" />
-        <button class="btn btn-success" id="btnSubmit" v-on:click="createRoom">Tạo</button>
+    <div class="row g-3 align-items-center">
+        <h2>Tạo phòng</h2>
+        <div class="col-auto">
+            <label for="txtName" class="col-form-label">Tên phòng</label>
+        </div>
+        <div class="col-auto">
+            <input type="text" class="form-control" id="txtName">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary" v-on:click="createRoom">Tạo</button>
+        </div>
     </div>
-    <ol>
-        <li v-for="r in rooms">
-            <a v-bind:href="'/Home/Chess?roomid='+ r.Id">{{ r.Name }}</a>
-        </li>
-    </ol>
+    <div class="b-divider"></div>
+    <div class="row g-3 align-items-center">
+        <h2>Danh sách phòng</h2>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            <div class="col" v-for="r in rooms">
+                <div class="card text-dark bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title">Tên phòng: {{ r.Name }}</h5>
+                        <p class="card-text">Mã phòng: {{ r.Id }}</p>
+                        <a class="btn btn-outline-danger" v-bind:href="'/Home/Chess?roomid='+ r.Id">Tham gia</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>

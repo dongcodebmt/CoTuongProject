@@ -10,11 +10,12 @@ namespace DemoAPI.Controllers
         ChessService chessService = new ChessService();
         public ActionResult Index()
         {
+            ViewBag.Title = "Trang chủ";
             return View();
         }
         public ActionResult Chess()
         {
-            ViewBag.Title = "Home Page";
+            ViewBag.Title = "Phòng chơi";
 
             return View();
         }
