@@ -11,10 +11,10 @@
             <input type="text" class="form-control" id="txtName">
         </div>
         <div class="col-auto">
-            <button type="submit" class="btn btn-primary" v-on:click="createRoom">Tạo</button>
+            <button type="submit" class="btn btn-outline-primary" v-on:click="createRoom">Tạo</button>
         </div>
     </div>
-    <div class="b-divider"></div>
+    <div style="height: 3rem;"></div>
     <div class="row g-3 align-items-center">
         <h2>Danh sách phòng</h2>
         <div class="row row-cols-1 row-cols-md-3 g-4">
@@ -39,7 +39,7 @@
         },
         methods: {
             getListRoom() {
-                axios.get('api/chess/getrooms')
+                axios.get('/api/chess/getrooms')
                     .then(response => {
                         if (response.data.message == "success") {
                             this.rooms = response.data.data;
@@ -51,7 +51,7 @@
             createRoom() {
                 var name = $("#txtName").val();
                 var payload = { RoomName: name };
-                axios.post('api/chess/insertroom', {
+                axios.post('/api/chess/insertroom', {
                     rmodel: payload
                 }).then(response => {
                     if (response.data.message == "success") {

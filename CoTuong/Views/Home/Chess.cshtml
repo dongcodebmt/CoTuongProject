@@ -5,10 +5,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.js"></script>
 <style>
     .chessboard {
-        width: 850px;
+        margin-top: -90px;
+        margin-left: 50px;
+        width: 800px;
         height: 850px;
         background-image: url('/Images/bancotuong.jpg');
-        position: absolute;
+        position: fixed;
         left: 0;
     }
 
@@ -22,45 +24,90 @@
         width: 50px;
         height: 50px;
     }
-
-    .chatboard {
-        width: 850px;
-        height: 850px;
-        position: absolute;
-        right: 0;
-        margin-top: 50px;
-        margin-right: 50px
-    }
 </style>
 
 
 <div id="app">
-    <div class="chessboard">
-        <div v-for="item in chessNode" v-if="item !== null" :id="item.id" class="chessnode" v-bind:style="{ display: item.visible, top: item.top + 'px', left: item.left + 'px'}">
-            <img :src="'/' + item.src" class="chessimgnode" />
+    <div class="container" style="display: none" id="bodyChessBoard">
+        <div class="row">
+            <div class="col-sm-5">
+                <div class="chessboard">
+                    <div v-for="item in chessNode" v-if="item !== null" :id="item.id" class="chessnode" v-bind:style="{ display: item.visible, top: item.top + 'px', left: item.left + 'px'}">
+                        <img :src="'/' + item.src" class="chessimgnode" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <h2>Lưu bàn cờ</h2>
+                <div class="row g-3 align-items-center">
+                    <div class="col-auto">
+                        <button class="btn btn-outline-primary" v-on:click="saveChessBoard">Download</button>
+                    </div>
+                </div>
+                <div style="height: 2rem;"></div>
+                <h2>Load bàn cờ</h2>
+                <div class="row g-3 align-items-center">
+                    <div class="col-auto">
+                        <input type="file" id="file" class="form-control">
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-outline-primary" v-on:click="loadChessBoard">Load</button>
+                    </div>
+                </div>
+                <div style="height: 2rem;"></div>
+                <h2>Undo - Redo</h2>
+                <div class="row g-3 align-items-center">
+                    <div class="col-auto">
+                        <button class="btn btn-outline-primary">Undo</button>
+                        <button class="btn btn-outline-primary">Redo</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <h2>Chat</h2>
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <div class="position-relative">
+                            <div class="chat-messages" id="contentMsg">
+                                @*<div class="chat-message-right">
+                                        <div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">
+                                            <div class="font-weight-bold mb-1">You</div> Lorem ipsum dolor sit amet, vis erat denique in,
+                                            dicunt prodesset te vix.
+                                        </div>
+                                    </div>
+                                    <div style="height: 1rem"></div>
+                                    <div class="chat-message-right">
+                                        <div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">
+                                            <div class="font-weight-bold mb-1">You</div> Lorem ipsum dolor sit amet, vis erat denique in,
+                                            dicunt prodesset te vix.
+                                        </div>
+                                    </div>*@
+                            </div>
+                        </div>
+                        <div class="flex-grow-0 py-3 px-4 border-top">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="txtMessage" placeholder="Nhập tin nhắn của bạn">
+                                <button class="btn btn-outline-primary" id="btnSend">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="chatboard">
-        @*<button class="btn btn-success" id="btnUndo" v-on:click="undo">Undo</button>
-        <button class="btn btn-success" id="btnRedo" v-on:click="redo">Redo</button>*@
-        <input type="file" id="file">
-        <button class="btn btn-success" id="btnLoadFile" v-on:click="loadChessBoard">Load File</button>
-        <button class="btn btn-success" id="btnDownloadFile" v-on:click="saveChessBoard">Download File</button>
-        <h2>Chat</h2>
-        <div class="container" id="divLogin">
-            <input type="text" id="txtName" placeholder="Nhập tên" />
-            <button class="btn btn-success" id="btnLogin">Login</button>
-            <input type="hidden" id="hName" />
-            <input type="hidden" id="hGroup" />
-        </div>
-        <div class="container" id="divChat">
-            <h2 id="welcome"></h2>
-            <input type="text" id="txtMessage" />
-            <button class="btn btn-success" id="btnSend">Send</button>
-        </div>
-        <div class="container">
-            <ul id="contentMsg">
-            </ul>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4 d-flex justify-content-center" id="bodyLogin">
+        <div class="col">
+            <div class="card text-dark bg-light">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="txtName" class="form-label">Nhập tên của bạn</label>
+                        <input type="text" class="form-control" id="txtName" aria-describedby="nameHelp">
+                        <div id="nameHelp" class="form-text">Nhập tên của bạn để tham gia phòng.</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="btnLogin">Tham gia</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -69,6 +116,7 @@
         el: '#app',
         data: {
             roomId: 0,
+            namePlayer: null,
             player: true,
             chessNode: [],
             chessMatrix: [[]],
@@ -309,11 +357,15 @@
             },
             loadClient(chatHub) {
                 chatHub.client.message = function (group, name, msg) {
-                    $('#contentMsg').append("<li><strong>" + name + "</strong>: " + msg + "</li>");
+                    $('#contentMsg').append(
+                        '<div class="chat-message-right">' +
+                        '<div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">' +
+                        '<div class="font-weight-bold mb-1"><b>' + name + '</b></div> ' + msg +
+                        '</div></div><div style="height: 1rem"></div>'
+                    );
                 }
                 chatHub.client.connect = function (group, name) {
-                    $('#hGroup').val(group);
-                    $('#hName').val(name);
+                    app.namePlayer = name;
                 }
             }
         },
@@ -340,7 +392,7 @@
                     } catch (error) {
                         app.revert(originalleft, originaltop, this.id);
                     }
-                    
+
 
                     //Các nước đi của từng quân cờ
                     if (app.indexStopI != -1 && app.indexStopJ != -1) {
@@ -479,15 +531,15 @@
                         if ((this.id.indexOf("totden1") >= 0 || this.id.indexOf("totden2") >= 0 || this.id.indexOf("totden3") >= 0 || this.id.indexOf("totden4") >= 0 || this.id.indexOf("totden5") >= 0) && app.player == false) {
                             if ((app.indexStartI == app.indexStopI || app.indexStartJ == app.indexStopJ) &&
                                 ((app.indexStartJ == app.indexStopJ && app.indexStopI - app.indexStartI == -1 && app.indexStopI >= 5 && app.indexStopI <= 6) ||
-                                ((app.indexStopI - app.indexStartI == -1 || Math.abs(app.indexStopJ - app.indexStartJ) == 1) && app.indexStopI >= 0 && app.indexStopI <= 4)) &&
+                                    ((app.indexStopI - app.indexStartI == -1 || Math.abs(app.indexStopJ - app.indexStartJ) == 1) && app.indexStopI >= 0 && app.indexStopI <= 4)) &&
                                 app.hasChessNode(app.chessMatrix[app.indexStopI][app.indexStopJ].left, app.chessMatrix[app.indexStopI][app.indexStopJ].top, app.chessMatrix[app.indexStartI][app.indexStartJ].id) != 1) {
 
                                 flag = app.xuLyNuocDi(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ, this.id);
                             }
                         }
 
-                        if (flag == true) 
-                            app.sendMoveList(movelist); 
+                        if (flag == true)
+                            app.sendMoveList(movelist);
                         else
                             app.revert(originalleft, originaltop, this.id);
                     } else {
@@ -503,8 +555,6 @@
             this.roomId = searchParams.get('roomid');
 
             var chatHub = $.connection.requestlog;
-            $('#divChat').hide();
-            $('#divLogin').show();
             this.loadClient(chatHub);
 
             $.connection.hub.start().done(function () {
@@ -512,22 +562,19 @@
                 $("#btnLogin").click(function () {
                     var name = $('#txtName').val();
                     chatHub.server.connect(app.roomId, name);
-                    $('#welcome').html("Xin chào: " + name);
-                    $('#divLogin').hide();
-                    $('#divChat').show();
+                    $('#bodyLogin').remove();
+                    $('#bodyChessBoard').show();
                 });
 
                 $('#btnSend').click(function () {
                     var msg = $('#txtMessage').val();
-                    var name = $('#hName').val();
-                    var group = $('#hGroup').val();
-                    chatHub.server.message(group, name, msg);
+                    chatHub.server.message(app.roomId, app.namePlayer, msg);
                     $('#txtMessage').val('').focus();
                 });
             });
             chatHub.client.postToClient = function (group, name, data) {
                 //$('#discussion').append('<div class="container"><p>Message' + data + '</p></div>');
-                $('#contentMsg').append("<li><strong>" + name + "</strong>: " + data + "</li>");
+                //$('#contentMsg').append("<li><strong>" + name + "</strong>: " + data + "</li>");
                 var result = [];
                 result = JSON.parse(data);
 
