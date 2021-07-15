@@ -344,18 +344,18 @@
                 }
                 return 0;
             },
-            chongTuong(stopJ) {
+            chongTuong(stopJ, id) {
                 var check = 0;
-                var flag = 1;
+                var flag = false;
                 for (let i = 0; i <= 9; i++) {
-                    if (app.chessMatrix[i][stopJ].id) {
+                    if (app.chessMatrix[i][stopJ].id && !(app.chessMatrix[i][stopJ].id.indexOf("chutuong") >= 0)) {
                         check++;
                     }
-                    if (app.chessMatrix[i][stopJ].id.indexOf("chutuong") >= 0) {
-                        flag++;
+                    if (app.chessMatrix[i][stopJ].id.indexOf("chutuong") >= 0 && app.chessMatrix[i][stopJ].id != id) {
+                        flag = true;
                     }
                 }
-                if (flag == 2 && check <= 2) {
+                if (flag == true && check < 1) {
                     return false;
                 }
                 return true;
@@ -441,7 +441,7 @@
                             if (((Math.abs(app.indexStopI - app.indexStartI) == 0 && Math.abs(app.indexStopJ - app.indexStartJ) == 1) ||
                                 (Math.abs(app.indexStopI - app.indexStartI) == 1 && Math.abs(app.indexStopJ - app.indexStartJ) == 0)) &&
                                 (app.indexStopJ >= 3 && app.indexStopJ <= 5 && app.indexStopI >= 0 && app.indexStopI <= 2) &&
-                                app.chongTuong(app.indexStopJ) &&
+                                app.chongTuong(app.indexStopJ, this.id) &&
                                 app.hasChessNode(app.chessMatrix[app.indexStopI][app.indexStopJ].left, app.chessMatrix[app.indexStopI][app.indexStopJ].top, app.chessMatrix[app.indexStartI][app.indexStartJ].id) != 1) {
 
                                 flag = app.xuLyNuocDi(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ, this.id);
@@ -451,7 +451,7 @@
                             if (((Math.abs(app.indexStopI - app.indexStartI) == 0 && Math.abs(app.indexStopJ - app.indexStartJ) == 1) ||
                                 (Math.abs(app.indexStopI - app.indexStartI) == 1 && Math.abs(app.indexStopJ - app.indexStartJ) == 0))
                                 && (app.indexStopJ >= 3 && app.indexStopJ <= 5 && app.indexStopI >= 7 && app.indexStopI <= 9) &&
-                                app.chongTuong(app.indexStopJ) &&
+                                app.chongTuong(app.indexStopJ, this.id) &&
                                 app.hasChessNode(app.chessMatrix[app.indexStopI][app.indexStopJ].left, app.chessMatrix[app.indexStopI][app.indexStopJ].top, app.chessMatrix[app.indexStartI][app.indexStartJ].id) != 1) {
 
                                 flag = app.xuLyNuocDi(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ, this.id);
