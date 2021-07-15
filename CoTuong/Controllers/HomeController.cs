@@ -19,6 +19,12 @@ namespace DemoAPI.Controllers
 
             return View();
         }
+        public ActionResult AutoChess()
+        {
+            ViewBag.Title = "Đánh với máy";
+
+            return View();
+        }
         public void insertRoom()
         {
             Room r = new Room();

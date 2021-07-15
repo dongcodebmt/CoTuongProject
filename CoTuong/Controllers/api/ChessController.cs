@@ -74,5 +74,27 @@ namespace DemoAPI.Controllers.api
                 message = "success"
             }, JsonRequestBehavior.AllowGet);
         }
+
+        [Route("api/chess/undo")]
+        [HttpPost]
+        public ActionResult undoMove(string group)
+        {
+            Requestlog.PostToClient(group, "::undo", null);
+            return Json(new
+            {
+                message = "success"
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+        [Route("api/chess/redo")]
+        [HttpPost]
+        public ActionResult redoMove(string group)
+        {
+            Requestlog.PostToClient(group, "::redo", null);
+            return Json(new
+            {
+                message = "success"
+            }, JsonRequestBehavior.AllowGet);
+        }
     }
 }
