@@ -6,6 +6,6 @@ TODO:
 - [x] load bàn cờ
 - [x] lưu bàn cờ
 - [x] các nước đi cho từng quân cờ
-- [ ] undo, redo
+- [x] undo, redo
 - [x] vừa đánh cờ, vừa chat
 - [ ] người đánh với máy
