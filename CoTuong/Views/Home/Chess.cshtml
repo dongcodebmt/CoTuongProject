@@ -55,11 +55,12 @@
                     </div>
                 </div>
                 <div style="height: 2rem;"></div>
-                <h2>Undo - Redo</h2>
+                <h2>Action</h2>
                 <div class="row g-3 align-items-center">
                     <div class="col-auto">
                         <button class="btn btn-outline-primary">Undo</button>
                         <button class="btn btn-outline-primary">Redo</button>
+                        <button class="btn btn-outline-primary" v-on:click="reloadBoard">Chơi lại</button>
                     </div>
                 </div>
             </div>
@@ -246,6 +247,7 @@
                         }
                     }
                 }
+                listChessNode.push(app.player)
                 var fileToSave = new Blob([JSON.stringify(listChessNode)], {
                     type: 'application/json'
                 });
@@ -255,14 +257,21 @@
             loadChessBoard() {
                 var fr = new FileReader();
                 fr.onload = function (evt) {
+                    app.chessNode = [];
                     app.chessNode = JSON.parse(evt.target.result);
                     app.initMatrix();
                     for (var i = 0; i < app.chessNode.length; i++) {
                         app.setChessNodeToMatrix(app.chessNode[i]);
                     }
                     app.initPrintMatrix();
+                    app.player = app.chessNode.pop()
                 };
                 fr.readAsText(document.getElementById('file').files[0]);
+            },
+            reloadBoard() {
+                app.chessNode = [];
+                app.player = true;
+                app.getchessNode();
             },
             kiemTraDuongCheo(stopI, startI, stopJ, startJ) {
                 if (stopI > startI && stopJ > startJ) {
