@@ -260,13 +260,18 @@
             setChessBoard(data) {
                 res = JSON.parse(data);
                 this.chessNode = [];
-                this.chessNode = res.data;
                 this.player = res.player;
-                this.initMatrix();
-                for (var i = 0; i < this.chessNode.length; i++) {
-                    this.setChessNodeToMatrix(this.chessNode[i]);
-                }
-                this.initPrintMatrix();
+                axios.post('/api/chess/getchessnode').then(response => {
+                    this.chessNode = res.data;
+                    this.chessMatrix = response.data.matrix;
+                    this.initMatrix();
+                    for (var i = 0; i < this.chessNode.length; i++) {
+                        this.setChessNodeToMatrix(this.chessNode[i]);
+                    }
+                    this.initPrintMatrix();
+                }).catch(error => {
+                    console.log(error)
+                }).finally();
             },
             saveChessBoard() {
                 var listChessNode = this.getChessBoard();
@@ -417,10 +422,19 @@
                 }
             },
             saveMove() {
-                this.mem.push(this.getChessBoard());
+                if (this.pos + 1 >= this.mem.length) {
+                    this.mem.push(this.getChessBoard());
+                    this.pos++;
+                } else {
+                    app.mem.splice(app.pos);
+                    app.mem.push(app.getChessBoard());
+                    app.pos++;
+                }
             },
             undoMove() {
-                this.setChessBoard(this.mem.pop());
+                if (app.pos >= 0) {
+                    app.setChessBoard(app.mem[--app.pos]);
+                }
             },
             redoMove() {
                 if (this.pos < this.mem.length) {
