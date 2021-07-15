@@ -85,11 +85,13 @@
                                     </div>*@
                             </div>
                         </div>
-                        <div class="flex-grow-0 py-3 px-4 border-top">
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="txtMessage" placeholder="Nhập tin nhắn của bạn">
-                                <button class="btn btn-outline-primary" id="btnSend">Send</button>
-                            </div>
+                        <div class="col-auto">
+                            <form>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="txtMessage" placeholder="Nhập tin nhắn của bạn">
+                                    <button class="btn btn-outline-primary" id="btnSend">Send</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -99,16 +101,18 @@
 
     <div class="row row-cols-1 row-cols-md-3 g-4 d-flex justify-content-center" id="bodyLogin">
         <div class="col">
-            <div class="card text-dark bg-light">
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label for="txtName" class="form-label">Nhập tên của bạn</label>
-                        <input type="text" class="form-control" id="txtName" aria-describedby="nameHelp">
-                        <div id="nameHelp" class="form-text">Nhập tên của bạn để tham gia phòng.</div>
+            <form>
+                <div class="card text-dark bg-light">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="txtName" class="form-label">Nhập tên của bạn</label>
+                            <input type="text" class="form-control" id="txtName" aria-describedby="nameHelp">
+                            <div id="nameHelp" class="form-text">Nhập tên của bạn để tham gia phòng.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="btnLogin">Tham gia</button>
                     </div>
-                    <button type="submit" class="btn btn-primary" id="btnLogin">Tham gia</button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 </div>
@@ -568,17 +572,19 @@
 
             $.connection.hub.start().done(function () {
                 //chatHub.server.connect(this.roomId);
-                $("#btnLogin").click(function () {
+                $("#btnLogin").click(function (e) {
                     var name = $('#txtName').val();
                     chatHub.server.connect(app.roomId, name);
                     $('#bodyLogin').remove();
                     $('#bodyChessBoard').show();
+                    e.preventDefault();
                 });
 
-                $('#btnSend').click(function () {
+                $('#btnSend').click(function (e) {
                     var msg = $('#txtMessage').val();
                     chatHub.server.message(app.roomId, app.namePlayer, msg);
                     $('#txtMessage').val('').focus();
+                    e.preventDefault();
                 });
             });
             chatHub.client.postToClient = function (group, name, data) {
