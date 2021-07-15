@@ -58,8 +58,8 @@
                 <h2>Action</h2>
                 <div class="row g-3 align-items-center">
                     <div class="col-auto">
-                        <button class="btn btn-outline-primary" id="btnUndo">Undo</button>
-                        <button class="btn btn-outline-primary" id="btnRedo">Redo</button>
+                        <button class="btn btn-outline-primary">Undo</button>
+                        <button class="btn btn-outline-primary">Redo</button>
                         <button class="btn btn-outline-primary" v-on:click="reloadBoard">Chơi lại</button>
                     </div>
                 </div>
@@ -124,8 +124,6 @@
             namePlayer: null,
             player: true,
             isOver: false,
-            pos: 0,
-            mem: [],
             chessNode: [],
             chessMatrix: [[]],
             indexStartI: -1,
@@ -244,7 +242,7 @@
                 node.css({ 'top': top + 'px' });
                 node.css({ 'left': left + 'px' });
             },
-            getChessBoard() {
+            saveChessBoard() {
                 var listChessNode = [];
                 for (var i = 0; i <= 9; i++) {
                     for (var j = 0; j <= 8; j++) {
@@ -254,23 +252,8 @@
                         }
                     }
                 }
-                var data = { player: this.player, data: listChessNode };
-                return JSON.stringify(data);
-            },
-            setChessBoard(data) {
-                res = JSON.parse(data);
-                app.chessNode = [];
-                app.chessNode = res.data;
-                app.player = res.player;
-                app.initMatrix();
-                for (var i = 0; i < app.chessNode.length; i++) {
-                    app.setChessNodeToMatrix(app.chessNode[i]);
-                }
-                app.initPrintMatrix();
-            },
-            saveChessBoard() {
-                var listChessNode = this.getChessBoard();
-                var fileToSave = new Blob([listChessNode], {
+                listChessNode.push(app.player)
+                var fileToSave = new Blob([JSON.stringify(listChessNode)], {
                     type: 'application/json'
                 });
 
@@ -279,7 +262,14 @@
             loadChessBoard() {
                 var fr = new FileReader();
                 fr.onload = function (evt) {
-                    app.setChessBoard(evt.target.result);
+                    app.chessNode = [];
+                    app.chessNode = JSON.parse(evt.target.result);
+                    app.initMatrix();
+                    for (var i = 0; i < app.chessNode.length; i++) {
+                        app.setChessNodeToMatrix(app.chessNode[i]);
+                    }
+                    app.initPrintMatrix();
+                    app.player = app.chessNode.pop()
                 };
                 fr.readAsText(document.getElementById('file').files[0]);
             },
@@ -416,24 +406,16 @@
                     app.namePlayer = name;
                 }
             },
-            saveMove() {
-                if (app.pos >= app.mem.length) {
-                    app.mem.push(app.getChessBoard());
-                    app.pos++;
-                } else {
-                    app.mem.splice(app.pos);
-                    app.mem.push(app.getChessBoard());
-                    app.pos++;
-                }
-            },
-            undoMove() {
-                if (app.pos > 0) {
-                    app.setChessBoard(app.mem[--app.pos]);
-                }
-            },
-            redoMove() {
-                if (app.pos < app.mem.length) {
-                    app.setChessBoard(app.mem[++app.pos]);
+            autoChess(random) {
+                if (this.id.indexOf("chutuongden") >= 0 && app.player == false) {
+                    if (((Math.abs(app.indexStopI - app.indexStartI) == 0 && Math.abs(app.indexStopJ - app.indexStartJ) == 1) ||
+                        (Math.abs(app.indexStopI - app.indexStartI) == 1 && Math.abs(app.indexStopJ - app.indexStartJ) == 0))
+                        && (app.indexStopJ >= 3 && app.indexStopJ <= 5 && app.indexStopI >= 7 && app.indexStopI <= 9) &&
+                        app.chongTuong(app.indexStopJ, this.id) &&
+                        app.hasChessNode(app.chessMatrix[app.indexStopI][app.indexStopJ].left, app.chessMatrix[app.indexStopI][app.indexStopJ].top, app.chessMatrix[app.indexStartI][app.indexStartJ].id) != 1) {
+
+                        flag = app.xuLyNuocDi(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ, this.id);
+                    }
                 }
             }
         },
@@ -471,16 +453,6 @@
                             if (((Math.abs(app.indexStopI - app.indexStartI) == 0 && Math.abs(app.indexStopJ - app.indexStartJ) == 1) ||
                                 (Math.abs(app.indexStopI - app.indexStartI) == 1 && Math.abs(app.indexStopJ - app.indexStartJ) == 0)) &&
                                 (app.indexStopJ >= 3 && app.indexStopJ <= 5 && app.indexStopI >= 0 && app.indexStopI <= 2) &&
-                                app.chongTuong(app.indexStopJ, this.id) &&
-                                app.hasChessNode(app.chessMatrix[app.indexStopI][app.indexStopJ].left, app.chessMatrix[app.indexStopI][app.indexStopJ].top, app.chessMatrix[app.indexStartI][app.indexStartJ].id) != 1) {
-
-                                flag = app.xuLyNuocDi(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ, this.id);
-                            }
-                        }
-                        if (this.id.indexOf("chutuongden") >= 0 && app.player == false) {
-                            if (((Math.abs(app.indexStopI - app.indexStartI) == 0 && Math.abs(app.indexStopJ - app.indexStartJ) == 1) ||
-                                (Math.abs(app.indexStopI - app.indexStartI) == 1 && Math.abs(app.indexStopJ - app.indexStartJ) == 0))
-                                && (app.indexStopJ >= 3 && app.indexStopJ <= 5 && app.indexStopI >= 7 && app.indexStopI <= 9) &&
                                 app.chongTuong(app.indexStopJ, this.id) &&
                                 app.hasChessNode(app.chessMatrix[app.indexStopI][app.indexStopJ].left, app.chessMatrix[app.indexStopI][app.indexStopJ].top, app.chessMatrix[app.indexStartI][app.indexStartJ].id) != 1) {
 
@@ -634,7 +606,6 @@
                     chatHub.server.connect(app.roomId, name);
                     $('#bodyLogin').remove();
                     $('#bodyChessBoard').show();
-                    app.mem.push(app.getChessBoard());
                     e.preventDefault();
                 });
 
@@ -644,57 +615,39 @@
                     $('#txtMessage').val('').focus();
                     e.preventDefault();
                 });
-
-                //Undo redo
-                $('#btnUndo').click(function (e) {
-                    axios.post('/api/chess/undo', {
-                        group: app.roomId
-                    });
-                });
-
-                $('#btnRedo').click(function (e) {
-                    axios.post('/api/chess/redo', {
-                        group: app.roomId
-                    });
-                });
             });
             chatHub.client.postToClient = function (group, name, data) {
-                if (name == "::undo") {
-                    app.undoMove();
-                } else if (name == "::redo") {
-                    app.redoMove();
-                } else {
-                    //$('#contentMsg').append("<li><strong>" + name + "</strong>: " + data + "</li>");
-                    var result = [];
-                    result = JSON.parse(data);
-                    for (var i = 0; i < result.length; i++) {
-                        if (result[i].id.indexOf("do") >= 0) {
-                            app.player = false;
-                        } else {
-                            app.player = true;
-                        }
-                        var node = $("#" + result[i].id);
-                        var startTop = parseInt(node.css('top'), 10);
-                        var startLeft = parseInt(node.css('left'), 10);
-                        var hide = result[i].visible;
-                        if (hide == false) {
-                            node.css({ 'display': 'none' });
-                        } else {
-                            node.css({ 'top': result[i].top + 'px' });
-                            node.css({ 'left': result[i].left + 'px' });
-                            node.css({ 'display': result[i].visible });
-                            app.getIndex(startLeft, startTop, "start");
-                            app.$set(app.chessMatrix[app.indexStartI][app.indexStartJ], "id", "");
+                //$('#discussion').append('<div class="container"><p>Message' + data + '</p></div>');
+                //$('#contentMsg').append("<li><strong>" + name + "</strong>: " + data + "</li>");
+                var result = [];
+                result = JSON.parse(data);
 
-                            app.getIndex(result[i].left, result[i].top, "stop");
-                            app.$set(app.chessMatrix[app.indexStopI][app.indexStopJ], "id", result[i].id);
-
-                            app.initPrintMatrix();
-                        }
-                        //node.css({ 'top': result[i].top + 'px, left: ' + result[i].left + 'px, display:' + result[i].visible });
-                        break;
+                for (var i = 0; i < result.length; i++) {
+                    if (result[i].id.indexOf("do") >= 0) {
+                        app.player = false;
+                    } else {
+                        app.player = true;
                     }
-                    app.saveMove();
+                    var node = $("#" + result[i].id);
+                    var startTop = parseInt(node.css('top'), 10);
+                    var startLeft = parseInt(node.css('left'), 10);
+                    var hide = result[i].visible;
+                    if (hide == false) {
+                        node.css({ 'display': 'none' });
+                    } else {
+                        node.css({ 'top': result[i].top + 'px' });
+                        node.css({ 'left': result[i].left + 'px' });
+                        node.css({ 'display': result[i].visible });
+                        app.getIndex(startLeft, startTop, "start");
+                        app.$set(app.chessMatrix[app.indexStartI][app.indexStartJ], "id", "");
+
+                        app.getIndex(result[i].left, result[i].top, "stop");
+                        app.$set(app.chessMatrix[app.indexStopI][app.indexStopJ], "id", result[i].id);
+
+                        app.initPrintMatrix();
+                    }
+                    //node.css({ 'top': result[i].top + 'px, left: ' + result[i].left + 'px, display:' + result[i].visible });
+                    break;
                 }
             };
             this.getchessNode();
