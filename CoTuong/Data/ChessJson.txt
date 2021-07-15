@@ -25,10 +25,10 @@
 	{"id": "xedo1", "src":"Images/xedo1.svg", "top":61, "left":106, "visible": "inline"},
 	{"id": "xedo2", "src":"Images/xedo2.svg", "top":61, "left":701, "visible": "inline"},
 	{"id": "mado1", "src":"Images/mado1.svg", "top":61, "left":180, "visible": "inline"},
-	{"id": "mado2", "src":"Images/mado1.svg", "top":61, "left":624, "visible": "inline"},
+	{"id": "mado2", "src":"Images/mado2.svg", "top":61, "left":624, "visible": "inline"},
 	{"id": "tuongdo1", "src":"Images/tuongdo1.svg", "top":61, "left":254, "visible": "inline"},
-	{"id": "tuongdo2", "src":"Images/tuongdo1.svg", "top":61, "left":550, "visible": "inline"},
+	{"id": "tuongdo2", "src":"Images/tuongdo2.svg", "top":61, "left":550, "visible": "inline"},
 	{"id": "sido1", "src":"Images/sido1.svg", "top":61, "left":328, "visible": "inline"},
-	{"id": "sido2", "src":"Images/sido1.svg", "top":61, "left":476, "visible": "inline"},
+	{"id": "sido2", "src":"Images/sido2.svg", "top":61, "left":476, "visible": "inline"},
 	{"id": "chutuongdo", "src":"Images/chutuongdo.svg", "top":61, "left":402, "visible": "inline"}
 ]

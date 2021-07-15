@@ -248,8 +248,8 @@
                 var listChessNode = [];
                 for (var i = 0; i <= 9; i++) {
                     for (var j = 0; j <= 8; j++) {
-                        if (app.chessMatrix[i][j].id) {
-                            var node = { id: app.chessMatrix[i][j].id, src: $("#" + app.chessMatrix[i][j].id).children('img').attr('src').substring(1), top: app.chessMatrix[i][j].top, left: app.chessMatrix[i][j].left, visible: 'inline' };
+                        if (this.chessMatrix[i][j].id) {
+                            var node = { id: this.chessMatrix[i][j].id, src: $("#" + this.chessMatrix[i][j].id).children('img').attr('src').substring(1), top: this.chessMatrix[i][j].top, left: this.chessMatrix[i][j].left, visible: 'inline' };
                             listChessNode.push(node);
                         }
                     }
@@ -259,14 +259,14 @@
             },
             setChessBoard(data) {
                 res = JSON.parse(data);
-                app.chessNode = [];
-                app.chessNode = res.data;
-                app.player = res.player;
-                app.initMatrix();
-                for (var i = 0; i < app.chessNode.length; i++) {
-                    app.setChessNodeToMatrix(app.chessNode[i]);
+                this.chessNode = [];
+                this.chessNode = res.data;
+                this.player = res.player;
+                this.initMatrix();
+                for (var i = 0; i < this.chessNode.length; i++) {
+                    this.setChessNodeToMatrix(this.chessNode[i]);
                 }
-                app.initPrintMatrix();
+                this.initPrintMatrix();
             },
             saveChessBoard() {
                 var listChessNode = this.getChessBoard();
@@ -284,9 +284,9 @@
                 fr.readAsText(document.getElementById('file').files[0]);
             },
             reloadBoard() {
-                app.chessNode = [];
-                app.player = true;
-                app.getchessNode();
+                this.chessNode = [];
+                this.player = true;
+                this.getchessNode();
             },
             kiemTraDuongCheo(stopI, startI, stopJ, startJ) {
                 if (stopI > startI && stopJ > startJ) {
@@ -417,23 +417,15 @@
                 }
             },
             saveMove() {
-                if (app.pos >= app.mem.length) {
-                    app.mem.push(app.getChessBoard());
-                    app.pos++;
-                } else {
-                    app.mem.splice(app.pos);
-                    app.mem.push(app.getChessBoard());
-                    app.pos++;
-                }
+                this.mem.push(this.getChessBoard());
             },
             undoMove() {
-                if (app.pos > 0) {
-                    app.setChessBoard(app.mem[--app.pos]);
-                }
+                this.setChessBoard(this.mem.pop());
             },
             redoMove() {
-                if (app.pos < app.mem.length) {
-                    app.setChessBoard(app.mem[++app.pos]);
+                if (this.pos < this.mem.length) {
+                    this.pos = this.pos + 1;
+                    this.setChessBoard(this.mem[this.pos]);
                 }
             }
         },
@@ -667,19 +659,16 @@
                     //$('#contentMsg').append("<li><strong>" + name + "</strong>: " + data + "</li>");
                     var result = [];
                     result = JSON.parse(data);
-                    for (var i = 0; i < result.length; i++) {
-                        if (result[i].id.indexOf("do") >= 0) {
-                            app.player = false;
-                        } else {
-                            app.player = true;
-                        }
-                        var node = $("#" + result[i].id);
-                        var startTop = parseInt(node.css('top'), 10);
-                        var startLeft = parseInt(node.css('left'), 10);
-                        var hide = result[i].visible;
-                        if (hide == false) {
-                            node.css({ 'display': 'none' });
-                        } else {
+                    if (result[0].visible == true) {
+                        for (var i = 0; i < result.length; i++) {
+                            if (result[i].id.indexOf("do") >= 0) {
+                                app.player = false;
+                            } else {
+                                app.player = true;
+                            }
+                            var node = $("#" + result[i].id);
+                            var startTop = parseInt(node.css('top'), 10);
+                            var startLeft = parseInt(node.css('left'), 10);
                             node.css({ 'top': result[i].top + 'px' });
                             node.css({ 'left': result[i].left + 'px' });
                             node.css({ 'display': result[i].visible });
@@ -690,11 +679,13 @@
                             app.$set(app.chessMatrix[app.indexStopI][app.indexStopJ], "id", result[i].id);
 
                             app.initPrintMatrix();
+                            app.saveMove();
+                            //node.css({ 'top': result[i].top + 'px, left: ' + result[i].left + 'px, display:' + result[i].visible });
+                            break;
                         }
-                        //node.css({ 'top': result[i].top + 'px, left: ' + result[i].left + 'px, display:' + result[i].visible });
-                        break;
+                    } else {
+                        $("#" + result[0].id).remove();
                     }
-                    app.saveMove();
                 }
             };
             this.getchessNode();
