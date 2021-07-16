@@ -28,7 +28,7 @@
 
 
 <div id="app">
-    <div class="container" style="display: none" id="bodyChessBoard">
+    <div class="container" id="bodyChessBoard">
         <div class="row">
             <div class="col-sm-5">
                 <div class="chessboard">
@@ -58,72 +58,21 @@
                 <h2>Action</h2>
                 <div class="row g-3 align-items-center">
                     <div class="col-auto">
-                        <button class="btn btn-outline-primary">Undo</button>
-                        <button class="btn btn-outline-primary">Redo</button>
+                        <button class="btn btn-outline-primary" id="btnUndo">Undo</button>
+                        <button class="btn btn-outline-primary" id="btnRedo">Redo</button>
                         <button class="btn btn-outline-primary" v-on:click="reloadBoard">Chơi lại</button>
                     </div>
                 </div>
             </div>
-            <div class="col-sm-4">
-                <h2>Chat</h2>
-                <div class="row align-items-center">
-                    <div class="col-auto">
-                        <div class="position-relative">
-                            <div class="chat-messages" id="contentMsg">
-                                @*<div class="chat-message-right">
-                                        <div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">
-                                            <div class="font-weight-bold mb-1">You</div> Lorem ipsum dolor sit amet, vis erat denique in,
-                                            dicunt prodesset te vix.
-                                        </div>
-                                    </div>
-                                    <div style="height: 1rem"></div>
-                                    <div class="chat-message-right">
-                                        <div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">
-                                            <div class="font-weight-bold mb-1">You</div> Lorem ipsum dolor sit amet, vis erat denique in,
-                                            dicunt prodesset te vix.
-                                        </div>
-                                    </div>*@
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <form>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="txtMessage" placeholder="Nhập tin nhắn của bạn">
-                                    <button class="btn btn-outline-primary" id="btnSend">Send</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row row-cols-1 row-cols-md-3 g-4 d-flex justify-content-center" id="bodyLogin">
-        <div class="col">
-            <form>
-                <div class="card text-dark bg-light">
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label for="txtName" class="form-label">Nhập tên của bạn</label>
-                            <input type="text" class="form-control" id="txtName" aria-describedby="nameHelp">
-                            <div id="nameHelp" class="form-text">Nhập tên của bạn để tham gia phòng.</div>
-                        </div>
-                        <button type="submit" class="btn btn-primary" id="btnLogin">Tham gia</button>
-                    </div>
-                </div>
-            </form>
         </div>
     </div>
 </div>
+<script src="~/Scripts/bots.js"></script>
 <script>
+    const game = new Xiangqi();
     var app = new Vue({
         el: '#app',
         data: {
-            roomId: 0,
-            namePlayer: null,
-            player: true,
-            isOver: false,
             chessNode: [],
             chessMatrix: [[]],
             indexStartI: -1,
@@ -242,18 +191,38 @@
                 node.css({ 'top': top + 'px' });
                 node.css({ 'left': left + 'px' });
             },
-            saveChessBoard() {
+            getChessBoard() {
                 var listChessNode = [];
                 for (var i = 0; i <= 9; i++) {
                     for (var j = 0; j <= 8; j++) {
-                        if (app.chessMatrix[i][j].id) {
-                            var node = { id: app.chessMatrix[i][j].id, src: $("#" + app.chessMatrix[i][j].id).children('img').attr('src').substring(1), top: app.chessMatrix[i][j].top, left: app.chessMatrix[i][j].left, visible: 'inline' };
+                        if (this.chessMatrix[i][j].id) {
+                            var node = { id: this.chessMatrix[i][j].id, src: $("#" + this.chessMatrix[i][j].id).children('img').attr('src').substring(1), top: this.chessMatrix[i][j].top, left: this.chessMatrix[i][j].left, visible: 'inline' };
                             listChessNode.push(node);
                         }
                     }
                 }
-                listChessNode.push(app.player)
-                var fileToSave = new Blob([JSON.stringify(listChessNode)], {
+                var data = { player: this.player, data: listChessNode };
+                return JSON.stringify(data);
+            },
+            setChessBoard(data) {
+                res = JSON.parse(data);
+                this.chessNode = [];
+                this.player = res.player;
+                axios.post('/api/chess/getchessnode').then(response => {
+                    this.chessNode = res.data;
+                    this.chessMatrix = response.data.matrix;
+                    this.initMatrix();
+                    for (var i = 0; i < this.chessNode.length; i++) {
+                        this.setChessNodeToMatrix(this.chessNode[i]);
+                    }
+                    this.initPrintMatrix();
+                }).catch(error => {
+                    console.log(error)
+                }).finally();
+            },
+            saveChessBoard() {
+                var listChessNode = this.getChessBoard();
+                var fileToSave = new Blob([listChessNode], {
                     type: 'application/json'
                 });
 
@@ -262,21 +231,14 @@
             loadChessBoard() {
                 var fr = new FileReader();
                 fr.onload = function (evt) {
-                    app.chessNode = [];
-                    app.chessNode = JSON.parse(evt.target.result);
-                    app.initMatrix();
-                    for (var i = 0; i < app.chessNode.length; i++) {
-                        app.setChessNodeToMatrix(app.chessNode[i]);
-                    }
-                    app.initPrintMatrix();
-                    app.player = app.chessNode.pop()
+                    app.setChessBoard(evt.target.result);
                 };
                 fr.readAsText(document.getElementById('file').files[0]);
             },
             reloadBoard() {
-                app.chessNode = [];
-                app.player = true;
-                app.getchessNode();
+                this.chessNode = [];
+                this.player = true;
+                this.getchessNode();
             },
             kiemTraDuongCheo(stopI, startI, stopJ, startJ) {
                 if (stopI > startI && stopJ > startJ) {
@@ -369,8 +331,7 @@
                     alert("Đỏ thắng")
                     isOver = true;
                 }
-                var movelist = [{ id: id, top: 999, left: 999, visible: false }];
-                app.sendMoveList(movelist);
+                $("#" + id).remove();
             },
             xuLyNuocDi(stopI, startI, stopJ, startJ, id) {
                 if (app.hasChessNode(app.chessMatrix[stopI][stopJ].left, app.chessMatrix[stopI][stopJ].top, app.chessMatrix[startI][startJ].id) == -1) {
@@ -380,44 +341,61 @@
                 node.css({ 'top': app.chessMatrix[stopI][stopJ].top + 'px' });
                 node.css({ 'left': app.chessMatrix[stopI][stopJ].left + 'px' });
                 app.$set(app.chessMatrix[startI][startJ], "id", "");
+                app.$set(app.chessMatrix[stopI][stopJ], "id", id);
+                app.initPrintMatrix();
+
+
+                if (id.indexOf("do") >= 0) {
+                    var stop = app.convertMatrix(stopI, stopJ, "bot");
+                    var start = app.convertMatrix(startI, startJ, "bot");
+                    game.move(start.x + "" + start.y + "" + stop.x + "" + stop.y);
+                    this.botMove();
+                }
 
                 return true;
             },
-            sendMoveList(movelist) {
-                axios.post('/api/chess/movenode', {
-                    group: this.roomId,
-                    name: $('#hName').val(),
-                    movelist: movelist
-                }).then(response => {
-                }).catch(error => {
-                    console.log(error)
-                }).finally();
-            },
-            loadClient(chatHub) {
-                chatHub.client.message = function (group, name, msg) {
-                    $('#contentMsg').append(
-                        '<div class="chat-message-right">' +
-                        '<div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">' +
-                        '<div class="font-weight-bold mb-1"><b>' + name + '</b></div> ' + msg +
-                        '</div></div><div style="height: 1rem"></div>'
-                    );
-                }
-                chatHub.client.connect = function (group, name) {
-                    app.namePlayer = name;
-                }
-            },
-            autoChess(random) {
-                if (this.id.indexOf("chutuongden") >= 0 && app.player == false) {
-                    if (((Math.abs(app.indexStopI - app.indexStartI) == 0 && Math.abs(app.indexStopJ - app.indexStartJ) == 1) ||
-                        (Math.abs(app.indexStopI - app.indexStartI) == 1 && Math.abs(app.indexStopJ - app.indexStartJ) == 0))
-                        && (app.indexStopJ >= 3 && app.indexStopJ <= 5 && app.indexStopI >= 7 && app.indexStopI <= 9) &&
-                        app.chongTuong(app.indexStopJ, this.id) &&
-                        app.hasChessNode(app.chessMatrix[app.indexStopI][app.indexStopJ].left, app.chessMatrix[app.indexStopI][app.indexStopJ].top, app.chessMatrix[app.indexStartI][app.indexStartJ].id) != 1) {
-
-                        flag = app.xuLyNuocDi(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ, this.id);
+            getChessPos(top, left) {
+                var pos = { i: null, j: null };
+                for (var i = 0; i <= 9; i++) {
+                    for (var j = 0; j <= 8; j++) {
+                        if (Math.abs(this.chessMatrix[i][j].top - top) < 20 && Math.abs(this.chessMatrix[i][j].left - left) < 20) {
+                            pos = { i: i, j: j };
+                        }
                     }
                 }
-            }
+                return pos;
+            },
+            convertMatrix(i, j, type) {
+                var x = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'];
+                var inj = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+                var y = [9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
+                var ini = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+                var node;
+
+                if (type == "bot") {
+                    node = { x: x[inj.indexOf(j)], y: y[ini.indexOf(i)] }
+                } else {
+                    node = { i: ini[y.indexOf(j)], j: inj[x.indexOf(i)] }
+                }
+
+                return node;
+            },
+            botMove() {
+                let possibleMoves = game.moves();
+
+                // game over
+                if (possibleMoves.length === 0) return;
+
+                let randomIdx = Math.floor(Math.random() * possibleMoves.length);
+                let move = possibleMoves[randomIdx];
+                game.move(move);
+                console.log(move);
+
+                var start = this.convertMatrix(move.substring(0, 1), parseInt(move.substring(1, 2)), null);
+                var stop = this.convertMatrix(move.substring(2, 3), parseInt(move.substring(3, 4)), null);
+                app.xuLyNuocDi(stop.i, start.i, stop.j, start.j, app.chessMatrix[start.i][start.j].id);
+
+            },
         },
         updated: function () {
             var originaltop = 0;
@@ -434,7 +412,7 @@
                     app.indexStopI = -1;
                     app.indexStopJ = -1;
                     app.getIndex(ui.position.left, ui.position.top, "stop");
-                    var movelist = [{ id: this.id, top: 999, left: 999, visible: true }];
+                    var movelist;
                     try {
                         movelist = [{
                             id: this.id, top: app.chessMatrix[app.indexStopI][app.indexStopJ].top, left: app.chessMatrix[app.indexStopI][app.indexStopJ].left, visible: true
@@ -453,6 +431,16 @@
                             if (((Math.abs(app.indexStopI - app.indexStartI) == 0 && Math.abs(app.indexStopJ - app.indexStartJ) == 1) ||
                                 (Math.abs(app.indexStopI - app.indexStartI) == 1 && Math.abs(app.indexStopJ - app.indexStartJ) == 0)) &&
                                 (app.indexStopJ >= 3 && app.indexStopJ <= 5 && app.indexStopI >= 0 && app.indexStopI <= 2) &&
+                                app.chongTuong(app.indexStopJ, this.id) &&
+                                app.hasChessNode(app.chessMatrix[app.indexStopI][app.indexStopJ].left, app.chessMatrix[app.indexStopI][app.indexStopJ].top, app.chessMatrix[app.indexStartI][app.indexStartJ].id) != 1) {
+
+                                flag = app.xuLyNuocDi(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ, this.id);
+                            }
+                        }
+                        if (this.id.indexOf("chutuongden") >= 0 && app.player == false) {
+                            if (((Math.abs(app.indexStopI - app.indexStartI) == 0 && Math.abs(app.indexStopJ - app.indexStartJ) == 1) ||
+                                (Math.abs(app.indexStopI - app.indexStartI) == 1 && Math.abs(app.indexStopJ - app.indexStartJ) == 0))
+                                && (app.indexStopJ >= 3 && app.indexStopJ <= 5 && app.indexStopI >= 7 && app.indexStopI <= 9) &&
                                 app.chongTuong(app.indexStopJ, this.id) &&
                                 app.hasChessNode(app.chessMatrix[app.indexStopI][app.indexStopJ].left, app.chessMatrix[app.indexStopI][app.indexStopJ].top, app.chessMatrix[app.indexStartI][app.indexStartJ].id) != 1) {
 
@@ -580,9 +568,7 @@
                             }
                         }
 
-                        if (flag == true)
-                            app.sendMoveList(movelist);
-                        else
+                        if (flag != true)
                             app.revert(originalleft, originaltop, this.id);
                     } else {
                         app.revert(originalleft, originaltop, this.id);
@@ -593,63 +579,6 @@
             });
         },
         mounted: function () {
-            let searchParams = new URLSearchParams(window.location.search);
-            this.roomId = searchParams.get('roomid');
-
-            var chatHub = $.connection.requestlog;
-            this.loadClient(chatHub);
-
-            $.connection.hub.start().done(function () {
-                //chatHub.server.connect(this.roomId);
-                $("#btnLogin").click(function (e) {
-                    var name = $('#txtName').val();
-                    chatHub.server.connect(app.roomId, name);
-                    $('#bodyLogin').remove();
-                    $('#bodyChessBoard').show();
-                    e.preventDefault();
-                });
-
-                $('#btnSend').click(function (e) {
-                    var msg = $('#txtMessage').val();
-                    chatHub.server.message(app.roomId, app.namePlayer, msg);
-                    $('#txtMessage').val('').focus();
-                    e.preventDefault();
-                });
-            });
-            chatHub.client.postToClient = function (group, name, data) {
-                //$('#discussion').append('<div class="container"><p>Message' + data + '</p></div>');
-                //$('#contentMsg').append("<li><strong>" + name + "</strong>: " + data + "</li>");
-                var result = [];
-                result = JSON.parse(data);
-
-                for (var i = 0; i < result.length; i++) {
-                    if (result[i].id.indexOf("do") >= 0) {
-                        app.player = false;
-                    } else {
-                        app.player = true;
-                    }
-                    var node = $("#" + result[i].id);
-                    var startTop = parseInt(node.css('top'), 10);
-                    var startLeft = parseInt(node.css('left'), 10);
-                    var hide = result[i].visible;
-                    if (hide == false) {
-                        node.css({ 'display': 'none' });
-                    } else {
-                        node.css({ 'top': result[i].top + 'px' });
-                        node.css({ 'left': result[i].left + 'px' });
-                        node.css({ 'display': result[i].visible });
-                        app.getIndex(startLeft, startTop, "start");
-                        app.$set(app.chessMatrix[app.indexStartI][app.indexStartJ], "id", "");
-
-                        app.getIndex(result[i].left, result[i].top, "stop");
-                        app.$set(app.chessMatrix[app.indexStopI][app.indexStopJ], "id", result[i].id);
-
-                        app.initPrintMatrix();
-                    }
-                    //node.css({ 'top': result[i].top + 'px, left: ' + result[i].left + 'px, display:' + result[i].visible });
-                    break;
-                }
-            };
             this.getchessNode();
         }
     })
