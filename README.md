@@ -8,4 +8,4 @@ TODO:
 - [x] các nước đi cho từng quân cờ
 - [x] undo, redo
 - [x] vừa đánh cờ, vừa chat
-- [ ] người đánh với máy
+- [x] người đánh với máy
