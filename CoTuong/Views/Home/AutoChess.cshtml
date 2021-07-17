@@ -58,8 +58,8 @@
                 <h2>Action</h2>
                 <div class="row g-3 align-items-center">
                     <div class="col-auto">
-                        <button class="btn btn-outline-primary" id="btnUndo">Undo</button>
-                        <button class="btn btn-outline-primary" id="btnRedo">Redo</button>
+                        <button class="btn btn-outline-primary" v-on:click="undoMove">Undo</button>
+                        <button class="btn btn-outline-primary" v-on:click="redoMove">Redo</button>
                         <button class="btn btn-outline-primary" v-on:click="reloadBoard">Chơi lại</button>
                     </div>
                 </div>
@@ -73,6 +73,9 @@
     var app = new Vue({
         el: '#app',
         data: {
+            player: true,
+            pos: 0,
+            mem: [],
             chessNode: [],
             chessMatrix: [[]],
             indexStartI: -1,
@@ -201,13 +204,13 @@
                         }
                     }
                 }
-                var data = { player: this.player, data: listChessNode };
+                var data = { fen: game.fen(), data: listChessNode };
                 return JSON.stringify(data);
             },
             setChessBoard(data) {
                 res = JSON.parse(data);
                 this.chessNode = [];
-                this.player = res.player;
+                game.load(res.fen);
                 axios.post('/api/chess/getchessnode').then(response => {
                     this.chessNode = res.data;
                     this.chessMatrix = response.data.matrix;
@@ -226,7 +229,7 @@
                     type: 'application/json'
                 });
 
-                saveAs(fileToSave, "chess.json");
+                saveAs(fileToSave, "chess-bot.json");
             },
             loadChessBoard() {
                 var fr = new FileReader();
@@ -237,8 +240,8 @@
             },
             reloadBoard() {
                 this.chessNode = [];
-                this.player = true;
                 this.getchessNode();
+                game.reset();
             },
             kiemTraDuongCheo(stopI, startI, stopJ, startJ) {
                 if (stopI > startI && stopJ > startJ) {
@@ -325,15 +328,14 @@
             anQuanCo(id) {
                 if (id.indexOf("chutuongdo") >= 0) {
                     alert("Đen thắng");
-                    isOver = true;
                 }
                 if (id.indexOf("chutuongden") >= 0) {
-                    alert("Đỏ thắng")
-                    isOver = true;
+                    alert("Đỏ thắng");
                 }
                 $("#" + id).remove();
             },
             xuLyNuocDi(stopI, startI, stopJ, startJ, id) {
+                this.saveMove();
                 if (app.hasChessNode(app.chessMatrix[stopI][stopJ].left, app.chessMatrix[stopI][stopJ].top, app.chessMatrix[startI][startJ].id) == -1) {
                     app.anQuanCo(app.chessMatrix[stopI][stopJ].id);
                 }
@@ -349,7 +351,7 @@
                     var stop = app.convertMatrix(stopI, stopJ, "bot");
                     var start = app.convertMatrix(startI, startJ, "bot");
                     game.move(start.x + "" + start.y + "" + stop.x + "" + stop.y);
-                    this.botMove();
+                    setTimeout(function () { app.botMove(); }, 500);
                 }
 
                 return true;
@@ -396,6 +398,29 @@
                 app.xuLyNuocDi(stop.i, start.i, stop.j, start.j, app.chessMatrix[start.i][start.j].id);
 
             },
+            saveMove() {
+                if (this.pos + 1 >= this.mem.length) {
+                    this.mem.push(this.getChessBoard());
+                    this.pos++;
+                } else {
+                    app.mem.splice(app.pos);
+                    app.mem.push(app.getChessBoard());
+                    app.pos++;
+                }
+            },
+            undoMove() {
+                if (app.pos >= 0) {
+                    app.setChessBoard(app.mem[--app.pos]);
+                    game.undo();
+                }
+            },
+            redoMove() {
+                if (this.pos < this.mem.length) {
+                    this.pos = this.pos + 1;
+                    this.setChessBoard(this.mem[this.pos]);
+                    game.redo();
+                }
+            }
         },
         updated: function () {
             var originaltop = 0;
@@ -412,15 +437,6 @@
                     app.indexStopI = -1;
                     app.indexStopJ = -1;
                     app.getIndex(ui.position.left, ui.position.top, "stop");
-                    var movelist;
-                    try {
-                        movelist = [{
-                            id: this.id, top: app.chessMatrix[app.indexStopI][app.indexStopJ].top, left: app.chessMatrix[app.indexStopI][app.indexStopJ].left, visible: true
-                        }];
-                    } catch (error) {
-                        app.revert(originalleft, originaltop, this.id);
-                    }
-
 
                     //Các nước đi của từng quân cờ
                     if (app.indexStopI != -1 && app.indexStopJ != -1) {
@@ -527,7 +543,8 @@
                                 (app.indexStopJ >= 0 && app.indexStopJ <= 8 && app.indexStopI >= 0 && app.indexStopI <= 9) &&
                                 app.hasChessNode(app.chessMatrix[app.indexStopI][app.indexStopJ].left, app.chessMatrix[app.indexStopI][app.indexStopJ].top, app.chessMatrix[app.indexStartI][app.indexStartJ].id) != 1) {
 
-                                if (app.kiemTraDuongThang(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ) == 0) {
+                                if (app.kiemTraDuongThang(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ) == 0 &&
+                                    app.hasChessNode(app.chessMatrix[app.indexStopI][app.indexStopJ].left, app.chessMatrix[app.indexStopI][app.indexStopJ].top, app.chessMatrix[app.indexStartI][app.indexStartJ].id) == 0) {
                                     flag = app.xuLyNuocDi(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ, this.id);
                                 }
                                 if (app.kiemTraDuongThang(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ) == 1 && app.chessMatrix[app.indexStopI][app.indexStopJ].id) {
@@ -540,7 +557,8 @@
                                 (app.indexStopJ >= 0 && app.indexStopJ <= 8 && app.indexStopI >= 0 && app.indexStopI <= 9) &&
                                 app.hasChessNode(app.chessMatrix[app.indexStopI][app.indexStopJ].left, app.chessMatrix[app.indexStopI][app.indexStopJ].top, app.chessMatrix[app.indexStartI][app.indexStartJ].id) != 1) {
 
-                                if (app.kiemTraDuongThang(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ) == 0) {
+                                if (app.kiemTraDuongThang(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ) == 0 &&
+                                    app.hasChessNode(app.chessMatrix[app.indexStopI][app.indexStopJ].left, app.chessMatrix[app.indexStopI][app.indexStopJ].top, app.chessMatrix[app.indexStartI][app.indexStartJ].id) == 0) {
                                     flag = app.xuLyNuocDi(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ, this.id);
                                 }
                                 if (app.kiemTraDuongThang(app.indexStopI, app.indexStartI, app.indexStopJ, app.indexStartJ) == 1 && app.chessMatrix[app.indexStopI][app.indexStopJ].id) {
@@ -568,8 +586,9 @@
                             }
                         }
 
-                        if (flag != true)
+                        if (flag != true) {
                             app.revert(originalleft, originaltop, this.id);
+                        }
                     } else {
                         app.revert(originalleft, originaltop, this.id);
                     }

@@ -14,10 +14,20 @@
             <button type="submit" class="btn btn-outline-primary" v-on:click="createRoom">Tạo</button>
         </div>
     </div>
+
     <div style="height: 3rem;"></div>
     <div class="row g-3 align-items-center">
         <h2>Danh sách phòng</h2>
         <div class="row row-cols-1 row-cols-md-3 g-4">
+            <div class="col">
+                <div class="card text-dark bg-info">
+                    <div class="card-body">
+                        <h5 class="card-title">Tên phòng: Chơi với máy</h5>
+                        <p class="card-text">Mã phòng: Chơi với máy</p>
+                        <a class="btn btn-outline-dark" href="/Home/AutoChess">Tham gia</a>
+                    </div>
+                </div>
+            </div>
             <div class="col" v-for="r in rooms">
                 <div class="card text-dark bg-light">
                     <div class="card-body">
