@@ -329,6 +329,7 @@
         var originalleft = 0;
         $(".chessnode").draggable({
             start: function (event, ui) {
+                $(this).css("z-index", "1000");
                 originaltop = ui.position.top;
                 originalleft = ui.position.left;
             },
@@ -336,6 +337,7 @@
 
             },
             stop: function (event, ui) {
+                $(this).css("z-index", "auto");
                 app.indexStopI = -1;
                 app.indexStopJ = -1;
                 app.getIndex(ui.position.left, ui.position.top, "stop");
